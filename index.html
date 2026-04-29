@@ -1,0 +1,435 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600&family=Barlow:wght@400;500&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --gold:#C8960C;--gold-lt:#FFF3CC;--gold-dk:#7A5A00;
+    --coal:#1A1A1A;--coal2:#2C2C2A;--coal3:#3D3D3A;
+    --surface:#F5F3EE;--surface2:#EDEAE3;
+    --danger:#E24B4A;--danger-lt:#FCEBEB;
+    --success:#3B6D11;--success-lt:#EAF3DE;
+    --warn:#BA7517;--warn-lt:#FAEEDA;
+    --text:#1A1A1A;--text2:#5F5E5A;--text3:#888780;
+    --border:rgba(0,0,0,0.1);
+    --r:10px;
+    font-family:'Barlow',sans-serif;
+  }
+  body{background:var(--surface);color:var(--text);min-height:100vh}
+  .screen{display:none;flex-direction:column;min-height:100vh}
+  .screen.active{display:flex}
+  .topbar{background:var(--coal);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
+  .topbar-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:600;letter-spacing:0.5px;color:#fff;flex:1}
+  .topbar-sub{font-size:12px;color:#aaa;font-weight:400}
+  .topbar-badge{background:var(--gold);color:var(--coal);font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px}
+  .content{flex:1;padding:14px;display:flex;flex-direction:column;gap:12px}
+  .card{background:#fff;border:0.5px solid var(--border);border-radius:var(--r);padding:14px}
+  .card-label{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px}
+  .card-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:600;color:var(--text);line-height:1.1}
+  .badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
+  .badge-warn{background:var(--warn-lt);color:var(--warn)}
+  .badge-danger{background:var(--danger-lt);color:var(--danger)}
+  .badge-success{background:var(--success-lt);color:var(--success)}
+  .badge-info{background:#E6F1FB;color:#185FA5}
+  .badge-gold{background:var(--gold-lt);color:var(--gold-dk)}
+  .dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+  .dot-danger{background:var(--danger)}
+  .dot-warn{background:var(--warn)}
+  .dot-success{background:var(--success)}
+  .task-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border)}
+  .task-row:last-child{border-bottom:none;padding-bottom:0}
+  .task-check{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--border);cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;background:#fff}
+  .task-check.done{background:var(--success);border-color:var(--success);color:#fff}
+  .task-check.done::after{content:'✓';font-size:12px;font-weight:600}
+  .task-text{font-size:14px;color:var(--text);line-height:1.4;flex:1}
+  .task-text.done{text-decoration:line-through;color:var(--text3)}
+  .task-meta{font-size:11px;color:var(--text3);margin-top:2px}
+  .hazard-row{display:flex;gap:10px;padding:8px 10px;border-radius:7px;margin-bottom:6px;align-items:flex-start}
+  .hazard-row:last-child{margin-bottom:0}
+  .hazard-high{background:var(--danger-lt);border-left:3px solid var(--danger)}
+  .hazard-med{background:var(--warn-lt);border-left:3px solid var(--warn)}
+  .hazard-icon{font-size:16px;flex-shrink:0;line-height:1.4}
+  .hazard-text{font-size:13px;color:var(--text);line-height:1.4}
+  .hazard-level{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+  .hazard-high .hazard-level{color:var(--danger)}
+  .hazard-med .hazard-level{color:var(--warn)}
+  .ai-box{background:var(--coal);border-radius:var(--r);padding:14px;color:#fff}
+  .ai-label{font-size:11px;color:#888;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:6px}
+  .ai-text{font-size:13px;color:#E0DED8;line-height:1.6}
+  .ai-text strong{color:#fff;font-weight:500}
+  .bottomnav{background:var(--coal);display:flex;border-top:0.5px solid #333;position:sticky;bottom:0}
+  .nav-btn{flex:1;padding:12px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:none;cursor:pointer;color:#666;transition:color 0.15s}
+  .nav-btn.active{color:var(--gold)}
+  .nav-icon{font-size:18px;line-height:1}
+  .nav-label{font-size:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;text-transform:uppercase;font-weight:500}
+  .progress-bar{height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;margin-top:8px}
+  .progress-fill{height:100%;border-radius:3px;background:var(--gold);transition:width 0.4s}
+  .stat-row{display:flex;gap:8px}
+  .stat-box{flex:1;background:var(--surface);border-radius:7px;padding:10px;text-align:center}
+  .stat-val{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:600;color:var(--text);line-height:1}
+  .stat-lbl{font-size:11px;color:var(--text3);margin-top:2px}
+  .report-field{margin-bottom:10px}
+  .report-field label{font-size:12px;font-weight:500;color:var(--text2);display:block;margin-bottom:4px}
+  .report-field textarea{width:100%;font-size:13px;padding:9px 11px;border:0.5px solid var(--border);border-radius:7px;font-family:'Barlow',sans-serif;background:#fff;color:var(--text);resize:none;line-height:1.5}
+  .report-field textarea:focus{outline:none;border-color:#888}
+  .voice-btn{width:60px;height:60px;border-radius:50%;background:var(--coal);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto;transition:transform 0.15s,background 0.15s;position:relative}
+  .voice-btn.recording{background:var(--danger);transform:scale(1.08)}
+  .voice-pulse{position:absolute;border-radius:50%;width:100%;height:100%;background:var(--danger);opacity:0.3;animation:pulse 1s infinite;display:none}
+  .voice-btn.recording .voice-pulse{display:block}
+  @keyframes pulse{0%{transform:scale(1);opacity:0.3}100%{transform:scale(1.5);opacity:0}}
+  .primary-btn{width:100%;padding:12px;background:var(--coal);color:#fff;border:none;border-radius:var(--r);font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:600;letter-spacing:0.5px;cursor:pointer;transition:opacity 0.15s}
+  .primary-btn:hover{opacity:0.85}
+  .primary-btn.gold{background:var(--gold);color:var(--coal)}
+  .msg-ai{background:var(--coal2);color:#E0DED8;padding:10px 12px;border-radius:0 10px 10px 10px;font-size:13px;line-height:1.5;max-width:88%;margin-bottom:8px}
+  .msg-user{background:var(--gold);color:var(--coal);padding:10px 12px;border-radius:10px 0 10px 10px;font-size:13px;line-height:1.5;max-width:88%;margin-left:auto;margin-bottom:8px}
+  .chat-wrap{display:flex;flex-direction:column;flex:1;overflow-y:auto;padding:14px}
+  .chat-input-row{padding:10px 14px;background:#fff;border-top:0.5px solid var(--border);display:flex;gap:8px;align-items:center}
+  .chat-input{flex:1;font-size:14px;padding:9px 12px;border:0.5px solid var(--border);border-radius:20px;font-family:'Barlow',sans-serif;background:var(--surface);outline:none;color:var(--text)}
+  .send-btn{width:36px;height:36px;border-radius:50%;background:var(--coal);border:none;cursor:pointer;color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center}
+  .login-wrap{min-height:100vh;background:var(--coal);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;gap:20px}
+  .login-logo{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:600;color:var(--gold);letter-spacing:1px}
+  .login-sub{font-size:14px;color:#888;text-align:center;margin-top:-12px}
+  .login-card{background:#fff;border-radius:14px;padding:24px;width:100%;max-width:340px;display:flex;flex-direction:column;gap:14px}
+  .login-field{display:flex;flex-direction:column;gap:5px}
+  .login-field label{font-size:12px;font-weight:500;color:var(--text2)}
+  .login-field input{padding:10px 12px;border:0.5px solid var(--border);border-radius:7px;font-size:14px;font-family:'Barlow',sans-serif;outline:none;color:var(--text)}
+  .login-field input:focus{border-color:#888}
+  .shift-header{background:linear-gradient(135deg,var(--coal) 70%,var(--coal3));padding:20px 16px 16px;color:#fff}
+  .shift-title{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:600;color:var(--gold);letter-spacing:0.5px}
+  .shift-info{font-size:13px;color:#aaa;margin-top:2px}
+  .report-preview{background:var(--surface);border:0.5px solid var(--border);border-radius:7px;padding:12px;font-size:12px;line-height:1.6;color:var(--text2);white-space:pre-line}
+  .chip-row{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{font-size:11px;padding:4px 10px;border-radius:20px;border:0.5px solid var(--border);background:#fff;color:var(--text2);cursor:pointer;font-family:'Barlow',sans-serif;transition:all 0.15s}
+  .chip:hover{background:var(--surface2)}
+</style>
+
+<div id="login-screen" class="login-wrap">
+  <div class="login-logo">⛏ ShiftAI</div>
+  <div class="login-sub">Smart Shift Assistant — Mining Division</div>
+  <div class="login-card">
+    <div class="login-field">
+      <label>Employee ID</label>
+      <input type="text" id="emp-id" placeholder="e.g. MIN-4821" value="MIN-4821"/>
+    </div>
+    <div class="login-field">
+      <label>PIN</label>
+      <input type="password" id="emp-pin" placeholder="••••" value="1234"/>
+    </div>
+    <div style="padding:10px;background:var(--surface);border-radius:7px;display:flex;gap:8px;font-size:12px;color:var(--text2);align-items:flex-start">
+      <span style="font-size:14px">⚠</span>
+      <span>Ensure you have completed your pre-shift safety check before logging in.</span>
+    </div>
+    <button class="primary-btn gold" onclick="doLogin()">Start Shift</button>
+  </div>
+  <div style="font-size:11px;color:#555;text-align:center">Site: Witwatersrand Deep Level • Zone 4B</div>
+</div>
+
+<div id="app" style="display:none;flex-direction:column;min-height:100vh">
+  <div class="shift-header" id="shift-hdr">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <div class="shift-title">Morning Shift</div>
+        <div class="shift-info">J. Mokoena · MIN-4821 · Level 4B</div>
+        <div class="shift-info" id="shift-time">06:00 – 14:00 · Active</div>
+      </div>
+      <div style="text-align:right">
+        <div class="badge badge-warn">3 Hazards</div>
+        <div style="font-size:11px;color:#888;margin-top:4px" id="clock-disp"></div>
+      </div>
+    </div>
+    <div class="progress-bar" style="margin-top:12px">
+      <div class="progress-fill" id="shift-progress" style="width:0%"></div>
+    </div>
+    <div style="font-size:11px;color:#888;margin-top:4px" id="progress-label">0 of 6 tasks complete</div>
+  </div>
+
+  <div style="display:flex;flex:1;flex-direction:column">
+    <div style="display:flex;background:#fff;border-bottom:0.5px solid var(--border)">
+      <button class="nav-btn active" id="tab-dashboard" onclick="switchTab('dashboard')"><span class="nav-icon">◫</span><span class="nav-label">Dashboard</span></button>
+      <button class="nav-btn" id="tab-tasks" onclick="switchTab('tasks')"><span class="nav-icon">☑</span><span class="nav-label">Tasks</span></button>
+      <button class="nav-btn" id="tab-ai" onclick="switchTab('ai')"><span class="nav-icon">◈</span><span class="nav-label">AI Chat</span></button>
+      <button class="nav-btn" id="tab-report" onclick="switchTab('report')"><span class="nav-icon">≡</span><span class="nav-label">Report</span></button>
+    </div>
+
+    <div id="tab-content-dashboard" class="content">
+      <div class="ai-box">
+        <div class="ai-label">AI Shift Briefing</div>
+        <div class="ai-text">Good morning, <strong>James</strong>. You have <strong>6 tasks</strong> today in Zone 4B. Priority: <strong>conveyor belt inspection</strong> is overdue from yesterday's shift. <strong>3 active hazards</strong> — methane levels are elevated in Tunnel 7. Avoid unventilated areas. Start with your safety walkthrough first.</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-box"><div class="stat-val" id="stat-done">0</div><div class="stat-lbl">Tasks Done</div></div>
+        <div class="stat-box"><div class="stat-val">6</div><div class="stat-lbl">Total Tasks</div></div>
+        <div class="stat-box"><div class="stat-val" style="color:var(--danger)">3</div><div class="stat-lbl">Hazards</div></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Active Hazards</div>
+        <div class="hazard-row hazard-high">
+          <div class="hazard-icon">☁</div>
+          <div><div class="hazard-level">High Risk</div><div class="hazard-text">Elevated methane — Tunnel 7. PPE required, no open flames.</div></div>
+        </div>
+        <div class="hazard-row hazard-high">
+          <div class="hazard-icon">⚡</div>
+          <div><div class="hazard-level">High Risk</div><div class="hazard-text">Electrical fault on Panel C4. Do not operate — tagged out.</div></div>
+        </div>
+        <div class="hazard-row hazard-med">
+          <div class="hazard-icon">🪨</div>
+          <div><div class="hazard-level">Medium Risk</div><div class="hazard-text">Loose hanging wall at 4B-South. Barricaded — do not enter.</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Priority Task</div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:4px">Conveyor Belt Inspection</div>
+            <div style="font-size:12px;color:var(--text3)">Level 4B · Est. 45 min</div>
+          </div>
+          <span class="badge badge-danger">Overdue</span>
+        </div>
+        <button class="primary-btn" style="margin-top:12px;font-size:14px" onclick="switchTab('tasks')">View All Tasks →</button>
+      </div>
+    </div>
+
+    <div id="tab-content-tasks" class="content" style="display:none">
+      <div class="card">
+        <div class="card-label">Today's Tasks — Zone 4B</div>
+        <div id="task-list">
+          <div class="task-row" id="task-0">
+            <div class="task-check" onclick="toggleTask(0)"></div>
+            <div><div class="task-text">Pre-shift safety walkthrough</div><div class="task-meta">Safety · 30 min · <span class="badge badge-danger" style="font-size:10px;padding:1px 6px">Mandatory</span></div></div>
+          </div>
+          <div class="task-row" id="task-1">
+            <div class="task-check" onclick="toggleTask(1)"></div>
+            <div><div class="task-text">Conveyor belt inspection — Level 4B</div><div class="task-meta">Maintenance · 45 min · <span class="badge badge-danger" style="font-size:10px;padding:1px 6px">Overdue</span></div></div>
+          </div>
+          <div class="task-row" id="task-2">
+            <div class="task-check" onclick="toggleTask(2)"></div>
+            <div><div class="task-text">Check gas monitor calibration — Tunnel 7</div><div class="task-meta">Safety · 20 min · <span class="badge badge-warn" style="font-size:10px;padding:1px 6px">Urgent</span></div></div>
+          </div>
+          <div class="task-row" id="task-3">
+            <div class="task-check" onclick="toggleTask(3)"></div>
+            <div><div class="task-text">Drilling progress report — Face 3</div><div class="task-meta">Operations · 15 min</div></div>
+          </div>
+          <div class="task-row" id="task-4">
+            <div class="task-check" onclick="toggleTask(4)"></div>
+            <div><div class="task-text">Equipment lubrication — Rock drill units</div><div class="task-meta">Maintenance · 30 min</div></div>
+          </div>
+          <div class="task-row" id="task-5">
+            <div class="task-check" onclick="toggleTask(5)"></div>
+            <div><div class="task-text">End-of-shift handover to afternoon crew</div><div class="task-meta">Operations · 15 min · <span class="badge badge-info" style="font-size:10px;padding:1px 6px">13:45</span></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Shift Progress</div>
+        <div class="progress-bar"><div class="progress-fill" id="task-progress" style="width:0%"></div></div>
+        <div style="font-size:12px;color:var(--text3);margin-top:6px" id="task-progress-label">0 of 6 complete</div>
+      </div>
+    </div>
+
+    <div id="tab-content-ai" style="display:none;flex-direction:column;flex:1;min-height:400px">
+      <div class="chat-wrap" id="chat-log">
+        <div class="msg-ai">Hello James! I'm your AI Shift Assistant. I can help you with tasks, hazard info, safety protocols, or log progress. What do you need?</div>
+        <div style="margin-top:6px;margin-bottom:2px;font-size:11px;color:var(--text3)">Quick questions:</div>
+        <div class="chip-row" id="chip-row">
+          <div class="chip" onclick="sendChip('What are today\'s hazards?')">Today's hazards</div>
+          <div class="chip" onclick="sendChip('What task should I do first?')">What first?</div>
+          <div class="chip" onclick="sendChip('Show methane safety protocol')">Methane protocol</div>
+          <div class="chip" onclick="sendChip('Log: Conveyor belt inspection complete')">Log progress</div>
+        </div>
+      </div>
+      <div class="chat-input-row">
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--coal);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0" id="voice-toggle" onclick="toggleVoice()">🎤</div>
+        <input class="chat-input" id="chat-input" placeholder="Type or speak your update..." onkeydown="if(event.key==='Enter')sendChat()"/>
+        <div class="send-btn" onclick="sendChat()">→</div>
+      </div>
+    </div>
+
+    <div id="tab-content-report" class="content" style="display:none">
+      <div class="card">
+        <div class="card-label">Shift Report</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:10px">Voice or type your update — AI will format it into a structured report.</div>
+        <div class="report-field">
+          <label>Work completed</label>
+          <textarea rows="2" id="rpt-work" placeholder="Describe work done this shift..."></textarea>
+        </div>
+        <div class="report-field">
+          <label>Issues / incidents</label>
+          <textarea rows="2" id="rpt-issues" placeholder="Any faults, near-misses, incidents..."></textarea>
+        </div>
+        <div class="report-field">
+          <label>Equipment status</label>
+          <textarea rows="2" id="rpt-equip" placeholder="Condition of machinery, tools..."></textarea>
+        </div>
+        <div class="report-field">
+          <label>Notes for next shift</label>
+          <textarea rows="2" id="rpt-notes" placeholder="Handover notes..."></textarea>
+        </div>
+        <button class="primary-btn gold" onclick="generateReport()" style="margin-top:4px">Generate AI Report ↗</button>
+      </div>
+      <div class="card" id="report-out" style="display:none">
+        <div class="card-label">Generated Report</div>
+        <div class="report-preview" id="report-text"></div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="primary-btn" style="flex:1;font-size:13px" onclick="copyReport()">Copy</button>
+          <button class="primary-btn" style="flex:1;font-size:13px;background:var(--success)" onclick="submitReport()">Submit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var tasksDone=[];
+var chatHistory=[];
+
+function doLogin(){
+  var id=document.getElementById('emp-id').value;
+  if(!id){alert('Please enter your Employee ID');return;}
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  updateClock();
+  setInterval(updateClock,1000);
+  animateProgress();
+}
+
+function updateClock(){
+  var now=new Date();
+  var h=now.getHours().toString().padStart(2,'0');
+  var m=now.getMinutes().toString().padStart(2,'0');
+  var s=now.getSeconds().toString().padStart(2,'0');
+  document.getElementById('clock-disp').textContent=h+':'+m+':'+s;
+  var shiftStart=6*60;
+  var shiftEnd=14*60;
+  var cur=now.getHours()*60+now.getMinutes();
+  var pct=Math.min(100,Math.max(0,Math.round((cur-shiftStart)/(shiftEnd-shiftStart)*100)));
+  document.getElementById('shift-progress').style.width=pct+'%';
+}
+
+function animateProgress(){setTimeout(function(){updateClock();},100);}
+
+function switchTab(t){
+  ['dashboard','tasks','ai','report'].forEach(function(x){
+    document.getElementById('tab-content-'+x).style.display='none';
+    document.getElementById('tab-'+x).classList.remove('active');
+  });
+  var el=document.getElementById('tab-content-'+t);
+  el.style.display=(t==='ai')?'flex':'flex';
+  el.style.flexDirection='column';
+  document.getElementById('tab-'+t).classList.add('active');
+}
+
+function toggleTask(i){
+  var check=document.querySelector('#task-'+i+' .task-check');
+  var text=document.querySelector('#task-'+i+' .task-text');
+  if(tasksDone.includes(i)){
+    tasksDone=tasksDone.filter(function(x){return x!==i});
+    check.classList.remove('done');
+    text.classList.remove('done');
+  }else{
+    tasksDone.push(i);
+    check.classList.add('done');
+    text.classList.add('done');
+  }
+  var pct=Math.round(tasksDone.length/6*100);
+  document.getElementById('task-progress').style.width=pct+'%';
+  document.getElementById('task-progress-label').textContent=tasksDone.length+' of 6 complete';
+  document.getElementById('stat-done').textContent=tasksDone.length;
+  document.getElementById('shift-progress').style.width=pct+'%';
+  document.getElementById('progress-label').textContent=tasksDone.length+' of 6 tasks complete';
+}
+
+var aiReplies={
+  'hazard':'⚠ Active hazards today:\n\n1. HIGH — Elevated methane in Tunnel 7. Mandatory PPE, no flames.\n2. HIGH — Electrical fault on Panel C4. Tagged out, do not operate.\n3. MED — Loose hanging wall at 4B-South. Area barricaded.\n\nAlways check your gas monitor before entering any tunnel.',
+  'first':'Based on today\'s priorities, start with:\n\n1. ✅ Pre-shift safety walkthrough (mandatory)\n2. ⚠ Gas monitor check — Tunnel 7 (methane alert)\n3. 🔧 Conveyor belt inspection (overdue from yesterday)\n\nDo not skip the safety walkthrough.',
+  'methane':'Methane Safety Protocol:\n\n• Reading <1%: Normal operation\n• 1–2%: Increase ventilation, alert supervisor\n• >2%: Evacuate immediately, pull emergency stop\n\nTunnel 7 is currently at elevated levels. Ensure gas monitor is calibrated before entry. PPE mandatory.',
+  'log':'Logged ✓ Conveyor belt inspection marked as complete at '+new Date().toLocaleTimeString()+'. This will be included in your shift report.\n\nNext task: Check gas monitor calibration in Tunnel 7.',
+  'default':'I\'ve noted that. Is there anything specific about your tasks, safety protocols, or shift progress I can help with?'
+};
+
+function getAIReply(msg){
+  var m=msg.toLowerCase();
+  if(m.includes('hazard')||m.includes('danger')||m.includes('risk'))return aiReplies['hazard'];
+  if(m.includes('first')||m.includes('start')||m.includes('priority')||m.includes('next'))return aiReplies['first'];
+  if(m.includes('methane')||m.includes('gas')||m.includes('protocol'))return aiReplies['methane'];
+  if(m.includes('log')||m.includes('complete')||m.includes('done')||m.includes('finish'))return aiReplies['log'];
+  return aiReplies['default'];
+}
+
+function addMsg(text,isUser){
+  var log=document.getElementById('chat-log');
+  var div=document.createElement('div');
+  div.className=isUser?'msg-user':'msg-ai';
+  div.style.whiteSpace='pre-line';
+  div.textContent=text;
+  log.appendChild(div);
+  log.scrollTop=log.scrollHeight;
+}
+
+function sendChip(msg){
+  addMsg(msg,true);
+  document.getElementById('chip-row').style.display='none';
+  setTimeout(function(){addMsg(getAIReply(msg),false);},700);
+}
+
+function sendChat(){
+  var inp=document.getElementById('chat-input');
+  var msg=inp.value.trim();
+  if(!msg)return;
+  addMsg(msg,true);
+  inp.value='';
+  setTimeout(function(){addMsg(getAIReply(msg),false);},700);
+}
+
+var recording=false;
+function toggleVoice(){
+  recording=!recording;
+  var btn=document.getElementById('voice-toggle');
+  if(recording){
+    btn.style.background='var(--danger)';
+    document.getElementById('chat-input').placeholder='Listening...';
+    setTimeout(function(){
+      recording=false;
+      btn.style.background='var(--coal)';
+      var sample='Conveyor belt inspection done. Found minor belt slippage on section 3, adjusted tension. No further issues.';
+      document.getElementById('chat-input').value=sample;
+      document.getElementById('chat-input').placeholder='Type or speak your update...';
+    },2500);
+  }else{
+    btn.style.background='var(--coal)';
+    document.getElementById('chat-input').placeholder='Type or speak your update...';
+  }
+}
+
+function generateReport(){
+  var work=document.getElementById('rpt-work').value||'Completed assigned shift tasks.';
+  var issues=document.getElementById('rpt-issues').value||'No incidents reported.';
+  var equip=document.getElementById('rpt-equip').value||'All equipment operational.';
+  var notes=document.getElementById('rpt-notes').value||'No additional notes.';
+  var now=new Date();
+  var report='SHIFT REPORT — WITWATERSRAND DEEP LEVEL\n'
+    +'━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
+    +'Employee: J. Mokoena (MIN-4821)\n'
+    +'Shift: Morning | 06:00–14:00\n'
+    +'Zone: Level 4B | Date: '+now.toLocaleDateString()+'\n'
+    +'Generated: '+now.toLocaleTimeString()+'\n\n'
+    +'TASKS COMPLETED: '+tasksDone.length+'/6\n\n'
+    +'WORK SUMMARY:\n'+work+'\n\n'
+    +'INCIDENTS / ISSUES:\n'+issues+'\n\n'
+    +'EQUIPMENT STATUS:\n'+equip+'\n\n'
+    +'HANDOVER NOTES:\n'+notes+'\n\n'
+    +'HAZARDS NOTED: Elevated methane T7, Panel C4 fault, 4B-South hanging wall.\n\n'
+    +'Signature: J. Mokoena\n'
+    +'━━━━━━━━━━━━━━━━━━━━━━━━━━';
+  document.getElementById('report-text').textContent=report;
+  document.getElementById('report-out').style.display='block';
+  document.getElementById('report-out').scrollIntoView({behavior:'smooth'});
+}
+
+function copyReport(){
+  var t=document.getElementById('report-text').textContent;
+  navigator.clipboard.writeText(t).then(function(){alert('Report copied to clipboard.');});
+}
+
+function submitReport(){
+  alert('Report submitted successfully. Handover logged at '+new Date().toLocaleTimeString()+'.');
+}
+</script>
