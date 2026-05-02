@@ -6,7 +6,6 @@
   <title>ShiftAI — Smart Shift Assistant</title>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600&family=Barlow:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
-    /* ── Base ─────────────────────────────────────────── */
     *{box-sizing:border-box;margin:0;padding:0}
     :root{
       --gold:#C8960C;--gold-lt:#FFF3CC;--gold-dk:#7A5A00;
@@ -21,7 +20,7 @@
     }
     body{background:var(--surface);color:var(--text);min-height:100vh}
 
-    /* ── Login ────────────────────────────────────────── */
+    /* Login */
     .login-wrap{min-height:100vh;background:var(--coal);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;gap:20px}
     .login-logo{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:600;color:var(--gold);letter-spacing:1px}
     .login-sub{font-size:14px;color:#888;text-align:center;margin-top:-12px}
@@ -32,63 +31,82 @@
     .login-field input:focus{border-color:#888}
     .login-error{font-size:12px;color:var(--danger);background:var(--danger-lt);padding:8px 10px;border-radius:7px;display:none}
 
-    /* ── App shell ────────────────────────────────────── */
+    /* App */
     #app{display:none;flex-direction:column;min-height:100vh}
-    .shift-header{background:linear-gradient(135deg,var(--coal) 70%,var(--coal3));padding:20px 16px 16px;color:#fff}
-    .shift-title{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:600;color:var(--gold);letter-spacing:0.5px}
-    .shift-info{font-size:13px;color:#aaa;margin-top:2px}
-    .progress-bar{height:5px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;margin-top:12px}
-    .progress-fill{height:100%;border-radius:3px;background:var(--gold);transition:width 0.4s}
 
-    /* ── Nav tabs ─────────────────────────────────────── */
-    .tab-bar{display:flex;background:#fff;border-bottom:0.5px solid var(--border)}
-    .nav-btn{flex:1;padding:12px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:none;cursor:pointer;color:#666;transition:color 0.15s}
+    /* Shift header */
+    .shift-header{background:linear-gradient(135deg,var(--coal) 70%,var(--coal3));padding:16px 16px 14px;color:#fff}
+    .shift-header-top{display:flex;justify-content:space-between;align-items:flex-start}
+    .shift-title{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:600;letter-spacing:0.5px;line-height:1}
+    .shift-title .shift-type{color:var(--gold)}
+    .shift-info{font-size:12px;color:#aaa;margin-top:3px}
+    .shift-status-row{display:flex;align-items:center;gap:8px;margin-top:2px}
+    .shift-status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+    .shift-status-dot.active{background:#4CAF50;box-shadow:0 0 6px #4CAF50}
+    .shift-status-dot.off{background:#888}
+    .shift-status-text{font-size:12px;color:#aaa}
+    .header-right{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+    .clock-display{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:500;color:#fff;letter-spacing:1px;line-height:1}
+    .clock-date{font-size:11px;color:#666}
+
+    /* Logout button */
+    .logout-btn{background:rgba(255,255,255,0.07);border:0.5px solid rgba(255,255,255,0.15);color:#aaa;font-size:11px;padding:4px 10px;border-radius:20px;cursor:pointer;font-family:'Barlow',sans-serif;transition:all 0.15s;margin-top:2px}
+    .logout-btn:hover{background:var(--danger);color:#fff;border-color:var(--danger)}
+
+    /* Progress */
+    .progress-bar{height:4px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;margin-top:10px}
+    .progress-fill{height:100%;border-radius:3px;background:var(--gold);transition:width 0.5s}
+    .progress-label{font-size:11px;color:#666;margin-top:4px}
+
+    /* Tabs */
+    .tab-bar{display:flex;background:#fff;border-bottom:0.5px solid var(--border);position:sticky;top:0;z-index:5}
+    .nav-btn{flex:1;padding:11px 4px 9px;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:none;cursor:pointer;color:#666;transition:color 0.15s}
     .nav-btn.active{color:var(--gold)}
-    .nav-icon{font-size:18px;line-height:1}
+    .nav-icon{font-size:17px;line-height:1}
     .nav-label{font-size:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;text-transform:uppercase;font-weight:500}
 
-    /* ── Content ──────────────────────────────────────── */
-    .tab-panel{display:none;flex-direction:column;flex:1;gap:12px;padding:14px}
+    /* Content */
+    .tab-panel{display:none;flex-direction:column;gap:12px;padding:14px;flex:1}
     .tab-panel.active{display:flex}
     .tab-panel-chat{display:none;flex-direction:column;flex:1}
     .tab-panel-chat.active{display:flex}
     .card{background:#fff;border:0.5px solid var(--border);border-radius:var(--r);padding:14px}
     .card-label{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px}
 
-    /* ── Badges ───────────────────────────────────────── */
-    .badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
+    /* Badges */
+    .badge{display:inline-flex;align-items:center;font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
     .badge-warn{background:var(--warn-lt);color:var(--warn)}
     .badge-danger{background:var(--danger-lt);color:var(--danger)}
     .badge-success{background:var(--success-lt);color:var(--success)}
     .badge-info{background:#E6F1FB;color:#185FA5}
-    .badge-gold{background:var(--gold-lt);color:var(--gold-dk)}
+    .badge-off{background:var(--surface2);color:var(--text3)}
 
-    /* ── Stats ────────────────────────────────────────── */
+    /* Stats */
     .stat-row{display:flex;gap:8px}
     .stat-box{flex:1;background:var(--surface);border-radius:7px;padding:10px;text-align:center}
     .stat-val{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:600;color:var(--text);line-height:1}
     .stat-lbl{font-size:11px;color:var(--text3);margin-top:2px}
 
-    /* ── AI briefing box ──────────────────────────────── */
+    /* AI box */
     .ai-box{background:var(--coal);border-radius:var(--r);padding:14px;color:#fff}
     .ai-label{font-size:11px;color:#888;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:6px}
     .ai-text{font-size:13px;color:#E0DED8;line-height:1.6}
     .ai-text strong{color:#fff;font-weight:500}
 
-    /* ── Hazards ──────────────────────────────────────── */
+    /* Hazards */
     .hazard-row{display:flex;gap:10px;padding:8px 10px;border-radius:7px;margin-bottom:6px;align-items:flex-start}
     .hazard-row:last-child{margin-bottom:0}
     .hazard-high{background:var(--danger-lt);border-left:3px solid var(--danger)}
     .hazard-med{background:var(--warn-lt);border-left:3px solid var(--warn)}
     .hazard-low{background:var(--success-lt);border-left:3px solid var(--success)}
-    .hazard-icon{font-size:16px;flex-shrink:0;line-height:1.4}
+    .hazard-icon{font-size:15px;flex-shrink:0;line-height:1.5}
     .hazard-text{font-size:13px;color:var(--text);line-height:1.4}
     .hazard-level{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
     .hazard-high .hazard-level{color:var(--danger)}
     .hazard-med  .hazard-level{color:var(--warn)}
     .hazard-low  .hazard-level{color:var(--success)}
 
-    /* ── Tasks ────────────────────────────────────────── */
+    /* Tasks */
     .task-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border)}
     .task-row:last-child{border-bottom:none;padding-bottom:0}
     .task-check{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--border);cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;background:#fff}
@@ -98,7 +116,7 @@
     .task-text.done{text-decoration:line-through;color:var(--text3)}
     .task-meta{font-size:11px;color:var(--text3);margin-top:2px}
 
-    /* ── Chat ─────────────────────────────────────────── */
+    /* Chat */
     .chat-wrap{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:4px}
     .chat-input-row{padding:10px 14px;background:#fff;border-top:0.5px solid var(--border);display:flex;gap:8px;align-items:center}
     .chat-input{flex:1;font-size:14px;padding:9px 12px;border:0.5px solid var(--border);border-radius:20px;font-family:'Barlow',sans-serif;background:var(--surface);outline:none;color:var(--text)}
@@ -106,40 +124,42 @@
     .msg-ai{background:var(--coal2);color:#E0DED8;padding:10px 12px;border-radius:0 10px 10px 10px;font-size:13px;line-height:1.5;max-width:88%;white-space:pre-line}
     .msg-user{background:var(--gold);color:var(--coal);padding:10px 12px;border-radius:10px 0 10px 10px;font-size:13px;line-height:1.5;max-width:88%;margin-left:auto;white-space:pre-line}
     .chip-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
-    .chip{font-size:11px;padding:4px 10px;border-radius:20px;border:0.5px solid var(--border);background:#fff;color:var(--text2);cursor:pointer;transition:all 0.15s}
+    .chip{font-size:11px;padding:4px 10px;border-radius:20px;border:0.5px solid var(--border);background:#fff;color:var(--text2);cursor:pointer;transition:background 0.15s}
     .chip:hover{background:var(--surface2)}
 
-    /* ── Report ───────────────────────────────────────── */
+    /* Report */
     .report-field{margin-bottom:10px}
     .report-field label{font-size:12px;font-weight:500;color:var(--text2);display:block;margin-bottom:4px}
     .report-field textarea{width:100%;font-size:13px;padding:9px 11px;border:0.5px solid var(--border);border-radius:7px;font-family:'Barlow',sans-serif;background:#fff;color:var(--text);resize:none;line-height:1.5}
     .report-field textarea:focus{outline:none;border-color:#888}
     .report-preview{background:var(--surface);border:0.5px solid var(--border);border-radius:7px;padding:12px;font-size:12px;line-height:1.6;color:var(--text2);white-space:pre-line}
 
-    /* ── Buttons ──────────────────────────────────────── */
+    /* Buttons */
     .primary-btn{width:100%;padding:12px;background:var(--coal);color:#fff;border:none;border-radius:var(--r);font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:600;letter-spacing:0.5px;cursor:pointer;transition:opacity 0.15s}
     .primary-btn:hover{opacity:0.85}
     .primary-btn:disabled{opacity:0.5;cursor:not-allowed}
     .primary-btn.gold{background:var(--gold);color:var(--coal)}
 
-    /* ── Loading spinner ──────────────────────────────── */
-    .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px}
+    /* Spinner */
+    .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px}
     @keyframes spin{to{transform:rotate(360deg)}}
 
-    /* ── Toast notification ───────────────────────────── */
-    #toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--coal);color:#fff;font-size:12px;padding:8px 16px;border-radius:20px;opacity:0;transition:opacity 0.3s;z-index:999;white-space:nowrap}
+    /* Toast */
+    #toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--coal);color:#fff;font-size:12px;padding:8px 16px;border-radius:20px;opacity:0;transition:opacity 0.3s;z-index:999;white-space:nowrap;pointer-events:none}
     #toast.show{opacity:1}
 
-    /* ── Skeleton loader ──────────────────────────────── */
-    .skeleton{background:linear-gradient(90deg,var(--surface) 25%,var(--surface2) 50%,var(--surface) 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:6px;height:16px;margin-bottom:8px}
+    /* Skeleton */
+    .skeleton{background:linear-gradient(90deg,var(--surface) 25%,var(--surface2) 50%,var(--surface) 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:6px;height:14px;margin-bottom:8px}
     @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+    /* Off-shift banner */
+    .off-shift-banner{background:var(--coal3);border:1px solid rgba(200,150,12,0.3);border-radius:8px;padding:10px 12px;margin-bottom:4px;font-size:12px;color:#aaa;display:none}
+    .off-shift-banner strong{color:var(--gold)}
   </style>
 </head>
 <body>
 
-<!-- ════════════════════════════════════════════════
-     LOGIN SCREEN
-════════════════════════════════════════════════ -->
+<!-- LOGIN -->
 <div id="login-screen" class="login-wrap">
   <div class="login-logo">⛏ ShiftAI</div>
   <div class="login-sub">Smart Shift Assistant — Mining Division</div>
@@ -154,7 +174,7 @@
              onkeydown="if(event.key==='Enter')doLogin()"/>
     </div>
     <div style="padding:10px;background:var(--surface);border-radius:7px;display:flex;gap:8px;font-size:12px;color:var(--text2);align-items:flex-start">
-      <span style="font-size:14px">⚠</span>
+      <span>⚠</span>
       <span>Ensure you have completed your pre-shift safety check before logging in.</span>
     </div>
     <div class="login-error" id="login-error"></div>
@@ -163,26 +183,35 @@
   <div style="font-size:11px;color:#555;text-align:center">Site: Witwatersrand Deep Level • Zone 4B</div>
 </div>
 
-<!-- ════════════════════════════════════════════════
-     MAIN APP
-════════════════════════════════════════════════ -->
+<!-- APP -->
 <div id="app">
 
-  <!-- Shift header -->
+  <!-- Header -->
   <div class="shift-header">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+    <div class="shift-header-top">
       <div>
-        <div class="shift-title" id="hdr-shift-type">Morning Shift</div>
+        <div class="shift-title">
+          <span id="hdr-shift-label" class="shift-type">—</span> Shift
+        </div>
         <div class="shift-info" id="hdr-worker">Loading...</div>
-        <div class="shift-info" id="hdr-times">— · —</div>
+        <div class="shift-status-row">
+          <div class="shift-status-dot" id="status-dot"></div>
+          <span class="shift-status-text" id="hdr-status-text">—</span>
+        </div>
       </div>
-      <div style="text-align:right">
-        <div class="badge badge-warn" id="hdr-hazard-badge">— Hazards</div>
-        <div style="font-size:11px;color:#888;margin-top:4px" id="clock-disp"></div>
+      <div class="header-right">
+        <div class="clock-display" id="clock-disp">--:--:--</div>
+        <div class="clock-date" id="clock-date"></div>
+        <div class="badge" id="hdr-hazard-badge" style="margin-top:4px">— Hazards</div>
+        <button class="logout-btn" onclick="doLogout()">⏻ Logout</button>
       </div>
     </div>
+    <div class="off-shift-banner" id="off-shift-banner">
+      <strong>Outside shift hours</strong> — Your assigned shift is <span id="banner-shift-hours"></span>.
+      You are logged in as read-only until your shift starts.
+    </div>
     <div class="progress-bar"><div class="progress-fill" id="shift-progress" style="width:0%"></div></div>
-    <div style="font-size:11px;color:#888;margin-top:4px" id="progress-label">Loading tasks...</div>
+    <div class="progress-label" id="progress-label">Loading tasks...</div>
   </div>
 
   <!-- Tab bar -->
@@ -193,99 +222,67 @@
     <button class="nav-btn" id="tab-btn-report"    onclick="switchTab('report')">   <span class="nav-icon">≡</span><span class="nav-label">Report</span></button>
   </div>
 
-  <!-- ── DASHBOARD TAB ───────────────────────────── -->
+  <!-- DASHBOARD -->
   <div class="tab-panel active" id="tab-dashboard">
-
     <div class="ai-box">
       <div class="ai-label">AI Shift Briefing</div>
-      <div class="ai-text" id="ai-briefing">
-        <div class="skeleton" style="width:90%"></div>
-        <div class="skeleton" style="width:75%"></div>
-        <div class="skeleton" style="width:85%"></div>
-      </div>
+      <div class="ai-text" id="ai-briefing"><div class="skeleton" style="width:90%"></div><div class="skeleton" style="width:75%"></div></div>
     </div>
-
     <div class="stat-row">
       <div class="stat-box"><div class="stat-val" id="stat-done">0</div><div class="stat-lbl">Tasks Done</div></div>
       <div class="stat-box"><div class="stat-val" id="stat-total">—</div><div class="stat-lbl">Total Tasks</div></div>
       <div class="stat-box"><div class="stat-val" id="stat-hazards" style="color:var(--danger)">—</div><div class="stat-lbl">Hazards</div></div>
     </div>
-
     <div class="card">
       <div class="card-label">Active Hazards</div>
-      <div id="hazard-list">
-        <div class="skeleton"></div>
-        <div class="skeleton" style="width:80%"></div>
-      </div>
+      <div id="hazard-list"><div class="skeleton"></div><div class="skeleton" style="width:70%"></div></div>
     </div>
-
     <div class="card">
       <div class="card-label">Notifications</div>
-      <div id="notif-list" style="font-size:13px;color:var(--text2)">
-        <div class="skeleton"></div>
-      </div>
+      <div id="notif-list"><div class="skeleton"></div></div>
     </div>
-
   </div>
 
-  <!-- ── TASKS TAB ───────────────────────────────── -->
+  <!-- TASKS -->
   <div class="tab-panel" id="tab-tasks">
     <div class="card">
       <div class="card-label" id="tasks-zone-label">Today's Tasks</div>
-      <div id="task-list">
-        <div class="skeleton"></div>
-        <div class="skeleton" style="width:80%"></div>
-        <div class="skeleton" style="width:90%"></div>
-      </div>
+      <div id="task-list"><div class="skeleton"></div><div class="skeleton" style="width:80%"></div><div class="skeleton" style="width:90%"></div></div>
     </div>
     <div class="card">
       <div class="card-label">Shift Progress</div>
-      <div class="progress-bar" style="background:var(--surface2)">
-        <div class="progress-fill" id="task-progress" style="width:0%"></div>
-      </div>
+      <div class="progress-bar" style="background:var(--surface2)"><div class="progress-fill" id="task-progress" style="width:0%"></div></div>
       <div style="font-size:12px;color:var(--text3);margin-top:6px" id="task-progress-label">Loading...</div>
     </div>
   </div>
 
-  <!-- ── AI CHAT TAB ─────────────────────────────── -->
+  <!-- AI CHAT -->
   <div class="tab-panel-chat" id="tab-ai">
     <div class="chat-wrap" id="chat-log">
       <div class="msg-ai">Hello! I'm your AI Shift Assistant. Ask me about your tasks, hazards, safety protocols, or log your progress.</div>
       <div class="chip-row" id="chip-row">
         <div class="chip" onclick="sendChip('What are today\'s hazards?')">Today's hazards</div>
         <div class="chip" onclick="sendChip('What task should I do first?')">What first?</div>
-        <div class="chip" onclick="sendChip('Show methane safety protocol')">Methane protocol</div>
+        <div class="chip" onclick="sendChip('Methane safety protocol')">Methane protocol</div>
         <div class="chip" onclick="sendChip('Log: Conveyor belt inspection complete')">Log progress</div>
       </div>
     </div>
     <div class="chat-input-row">
-      <div style="width:32px;height:32px;border-radius:50%;background:var(--coal);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0" id="voice-toggle" onclick="toggleVoice()">🎤</div>
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--coal);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;flex-shrink:0" id="voice-toggle" onclick="toggleVoice()">🎤</div>
       <input class="chat-input" id="chat-input" placeholder="Type or speak your update..." onkeydown="if(event.key==='Enter')sendChat()"/>
       <div class="send-btn" onclick="sendChat()">→</div>
     </div>
   </div>
 
-  <!-- ── REPORT TAB ──────────────────────────────── -->
+  <!-- REPORT -->
   <div class="tab-panel" id="tab-report">
     <div class="card">
       <div class="card-label">Shift Report</div>
       <p style="font-size:13px;color:var(--text2);margin-bottom:10px">Voice or type your update — AI will format it into a structured report.</p>
-      <div class="report-field">
-        <label>Work completed</label>
-        <textarea rows="2" id="rpt-work" placeholder="Describe work done this shift..."></textarea>
-      </div>
-      <div class="report-field">
-        <label>Issues / incidents</label>
-        <textarea rows="2" id="rpt-issues" placeholder="Any faults, near-misses, incidents..."></textarea>
-      </div>
-      <div class="report-field">
-        <label>Equipment status</label>
-        <textarea rows="2" id="rpt-equip" placeholder="Condition of machinery, tools..."></textarea>
-      </div>
-      <div class="report-field">
-        <label>Notes for next shift</label>
-        <textarea rows="2" id="rpt-notes" placeholder="Handover notes..."></textarea>
-      </div>
+      <div class="report-field"><label>Work completed</label><textarea rows="2" id="rpt-work" placeholder="Describe work done this shift..."></textarea></div>
+      <div class="report-field"><label>Issues / incidents</label><textarea rows="2" id="rpt-issues" placeholder="Any faults, near-misses, incidents..."></textarea></div>
+      <div class="report-field"><label>Equipment status</label><textarea rows="2" id="rpt-equip" placeholder="Condition of machinery, tools..."></textarea></div>
+      <div class="report-field"><label>Notes for next shift</label><textarea rows="2" id="rpt-notes" placeholder="Handover notes..."></textarea></div>
       <button class="primary-btn gold" id="report-btn" onclick="generateReport()" style="margin-top:4px">Generate AI Report ↗</button>
     </div>
     <div class="card" id="report-out" style="display:none">
@@ -300,32 +297,93 @@
 
 </div>
 
-<!-- Toast -->
 <div id="toast"></div>
 
-<!-- ════════════════════════════════════════════════
-     JAVASCRIPT — ALL API CALLS TO PHP BACKEND
-════════════════════════════════════════════════ -->
 <script>
-
-// ══════════════════════════════════════════════════
-//  CONFIG — change this if your XAMPP path differs
-// ══════════════════════════════════════════════════
+// ══════════════════════════
+//  CONFIG
+// ══════════════════════════
 const API = 'http://localhost/smart_shift_backend/api';
 
-// ── App state ─────────────────────────────────────
-let TOKEN      = '';
-let EMPLOYEE   = {};
-let SHIFT_ID   = null;
-let TASKS      = [];
-let TASKS_DONE = new Set();
-let RECORDING  = false;
+// ── State ──
+let TOKEN='', EMPLOYEE={}, SHIFT_DATA={}, SHIFT_ID=null, TASKS=[], TASKS_DONE=new Set(), RECORDING=false;
 
-// ══════════════════════════════════════════════════
+// ══════════════════════════
+//  SHIFT DETECTION ENGINE
+//  Determines current shift from real clock time
+// ══════════════════════════
+function getCurrentShiftType() {
+  const h = new Date().getHours();
+  if (h >= 6  && h < 14) return 'morning';
+  if (h >= 14 && h < 22) return 'afternoon';
+  return 'night';
+}
+
+function getShiftHours(type) {
+  return { morning:'06:00–14:00', afternoon:'14:00–22:00', night:'22:00–06:00' }[type] || '—';
+}
+
+function getShiftProgress() {
+  const now = new Date();
+  const h = now.getHours(), m = now.getMinutes();
+  const minOfDay = h * 60 + m;
+  const type = getCurrentShiftType();
+  let start, end;
+  if (type === 'morning')   { start = 6*60;  end = 14*60; }
+  if (type === 'afternoon') { start = 14*60; end = 22*60; }
+  if (type === 'night')     { start = 22*60; end = 30*60; if (minOfDay < 6*60) start = -2*60; }
+  const pct = Math.min(100, Math.max(0, Math.round((minOfDay - start) / (end - start) * 100)));
+  return pct;
+}
+
+// Is the worker's assigned shift matching current time?
+function isOnShift(shiftType) {
+  return getCurrentShiftType() === shiftType;
+}
+
+// ══════════════════════════
+//  CLOCK — updates every second
+// ══════════════════════════
+function updateClock() {
+  const now  = new Date();
+  const pad  = n => n.toString().padStart(2,'0');
+  document.getElementById('clock-disp').textContent =
+    `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  document.getElementById('clock-date').textContent =
+    now.toLocaleDateString('en-ZA',{weekday:'short',day:'numeric',month:'short'});
+
+  // Update current shift label dynamically
+  const curShift = getCurrentShiftType();
+  document.getElementById('hdr-shift-label').textContent = capitalize(curShift);
+
+  // Update shift progress bar
+  const pct = getShiftProgress();
+  document.getElementById('shift-progress').style.width = pct + '%';
+
+  // Check if assigned shift matches current time
+  if (SHIFT_DATA.shift_type) {
+    const onShift = isOnShift(SHIFT_DATA.shift_type);
+    const dot  = document.getElementById('status-dot');
+    const txt  = document.getElementById('hdr-status-text');
+    const banner = document.getElementById('off-shift-banner');
+    if (onShift) {
+      dot.className  = 'shift-status-dot active';
+      txt.textContent = 'Shift Active';
+      banner.style.display = 'none';
+    } else {
+      dot.className  = 'shift-status-dot off';
+      txt.textContent = `Your shift: ${getShiftHours(SHIFT_DATA.shift_type)} (Currently ${capitalize(curShift)} shift)`;
+      banner.style.display = 'block';
+      document.getElementById('banner-shift-hours').textContent =
+        `${capitalize(SHIFT_DATA.shift_type)} (${getShiftHours(SHIFT_DATA.shift_type)})`;
+    }
+  }
+}
+
+// ══════════════════════════
 //  HELPERS
-// ══════════════════════════════════════════════════
-
-function toast(msg, duration = 2500) {
+// ══════════════════════════
+function toast(msg, duration=2500) {
   const el = document.getElementById('toast');
   el.textContent = msg;
   el.classList.add('show');
@@ -339,166 +397,139 @@ function setBtn(id, loading, label) {
   btn.innerHTML = loading ? `<span class="spinner"></span>${label}` : label;
 }
 
-// Authenticated fetch wrapper
-async function api(endpoint, options = {}) {
+async function api(endpoint, options={}) {
   const res = await fetch(`${API}/${endpoint}`, {
     ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': TOKEN ? `Bearer ${TOKEN}` : '',
-      ...(options.headers || {}),
-    },
+    headers: { 'Content-Type':'application/json', 'Authorization': TOKEN ? `Bearer ${TOKEN}` : '', ...(options.headers||{}) }
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Request failed');
   return data;
 }
 
-// ══════════════════════════════════════════════════
-//  LOGIN  →  api/login.php
-// ══════════════════════════════════════════════════
+function capitalize(s) { return s ? s.charAt(0).toUpperCase()+s.slice(1) : ''; }
+function formatTime(dt) { if (!dt) return '—'; return new Date(dt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }
+function formatDateTime(dt) { if (!dt) return '—'; return new Date(dt).toLocaleString([],{dateStyle:'short',timeStyle:'short'}); }
+
+// ══════════════════════════
+//  LOGIN
+// ══════════════════════════
 async function doLogin() {
   const empNum = document.getElementById('emp-id').value.trim();
   const pin    = document.getElementById('emp-pin').value.trim();
   const errEl  = document.getElementById('login-error');
   errEl.style.display = 'none';
-
-  if (!empNum || !pin) {
-    errEl.textContent = 'Please enter your Employee ID and PIN.';
-    errEl.style.display = 'block';
-    return;
-  }
-
+  if (!empNum || !pin) { errEl.textContent='Please enter your Employee ID and PIN.'; errEl.style.display='block'; return; }
   setBtn('login-btn', true, 'Signing in...');
-
   try {
     const data = await fetch(`${API}/login.php`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ emp_num: empNum, pin }),
-    }).then(r => r.json());
-
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({emp_num:empNum, pin})
+    }).then(r=>r.json());
     if (data.error) throw new Error(data.error);
-
-    // Save token + employee info
     TOKEN    = data.token;
     EMPLOYEE = data.employee;
-
-    // Show app
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'flex';
-
-    // Start clock
     updateClock();
     setInterval(updateClock, 1000);
-
-    // Load all data
     await loadDashboard();
     await loadTasks();
-
-  } catch (err) {
+  } catch(err) {
     errEl.textContent = err.message === 'Failed to fetch'
-      ? 'Cannot reach server. Is XAMPP running?'
-      : err.message;
+      ? 'Cannot reach server. Is XAMPP running?' : err.message;
     errEl.style.display = 'block';
   } finally {
     setBtn('login-btn', false, 'Start Shift');
   }
 }
 
-// ══════════════════════════════════════════════════
-//  DASHBOARD  →  api/dashboard.php
-// ══════════════════════════════════════════════════
+// ══════════════════════════
+//  LOGOUT
+// ══════════════════════════
+function doLogout() {
+  if (!confirm('End your shift session and log out?')) return;
+  TOKEN = ''; EMPLOYEE = {}; SHIFT_DATA = {}; SHIFT_ID = null; TASKS = []; TASKS_DONE = new Set();
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('emp-pin').value = '';
+  document.getElementById('login-error').style.display = 'none';
+  // Clear chat
+  const log = document.getElementById('chat-log');
+  log.innerHTML = '<div class="msg-ai">Hello! I\'m your AI Shift Assistant. Ask me about your tasks, hazards, safety protocols, or log your progress.</div><div class="chip-row" id="chip-row"><div class="chip" onclick="sendChip(\'What are today\\\'s hazards?\')">Today\'s hazards</div><div class="chip" onclick="sendChip(\'What task should I do first?\')">What first?</div></div>';
+  document.getElementById('report-out').style.display = 'none';
+  toast('Logged out. Stay safe! ⛏');
+}
+
+// ══════════════════════════
+//  DASHBOARD
+// ══════════════════════════
 async function loadDashboard() {
   try {
     const data = await api('dashboard.php');
     const d    = data.dashboard;
+    SHIFT_DATA = d;
     SHIFT_ID   = d.shift_id;
 
-    // Header
-    document.getElementById('hdr-shift-type').textContent =
-      capitalize(d.shift_type) + ' Shift';
+    // Header info
     document.getElementById('hdr-worker').textContent =
       `${d.name} ${d.surname} · ${d.emp_num} · ${d.level_name}`;
-    document.getElementById('hdr-times').textContent =
-      formatTime(d.start_time) + ' – ' + formatTime(d.end_time) + ' · ' + capitalize(d.shift_status);
     document.getElementById('tasks-zone-label').textContent =
       `Today's Tasks — ${d.zone_name}`;
 
     // Stats
-    const done  = parseInt(d.completed_tasks) || 0;
-    const total = parseInt(d.total_tasks)     || 0;
-    const haz   = parseInt(d.active_hazards)  || 0;
+    const done  = parseInt(d.completed_tasks)||0;
+    const total = parseInt(d.total_tasks)||0;
+    const haz   = parseInt(d.active_hazards)||0;
     document.getElementById('stat-done').textContent    = done;
     document.getElementById('stat-total').textContent   = total;
     document.getElementById('stat-hazards').textContent = haz;
-    document.getElementById('hdr-hazard-badge').textContent = `${haz} Hazard${haz !== 1 ? 's' : ''}`;
+    document.getElementById('hdr-hazard-badge').textContent = `${haz} Hazard${haz!==1?'s':''}`;
+    document.getElementById('hdr-hazard-badge').className =
+      'badge ' + (haz > 0 ? 'badge-danger' : 'badge-success');
 
-    // Progress
-    const pct = total > 0 ? Math.round(done / total * 100) : 0;
+    // Progress label
     document.getElementById('progress-label').textContent = `${done} of ${total} tasks complete`;
 
     // AI briefing
     document.getElementById('ai-briefing').textContent = data.ai_briefing || '—';
 
-    // Hazards
     renderHazards(data.hazards || []);
-
-    // Notifications
     renderNotifications(data.notifications || []);
 
-  } catch (err) {
+  } catch(err) {
     document.getElementById('ai-briefing').textContent = 'Could not load briefing. ' + err.message;
   }
 }
 
 function renderHazards(hazards) {
   const el = document.getElementById('hazard-list');
-  if (!hazards.length) {
-    el.innerHTML = '<p style="font-size:13px;color:var(--text3)">No active hazards in your zone.</p>';
-    return;
-  }
-  const icons = { gas:'☁', electrical:'⚡', structural:'🪨', fire:'🔥', flooding:'💧', other:'⚠️' };
+  if (!hazards.length) { el.innerHTML='<p style="font-size:13px;color:var(--text3)">No active hazards in your zone.</p>'; return; }
+  const icons = {gas:'☁',electrical:'⚡',structural:'🪨',fire:'🔥',flooding:'💧',other:'⚠️'};
   el.innerHTML = hazards.map(h => {
-    const cls  = h.severity === 'high' || h.severity === 'critical' ? 'hazard-high' : h.severity === 'medium' ? 'hazard-med' : 'hazard-low';
-    const icon = icons[h.type] || '⚠️';
-    const lvl  = h.severity === 'critical' ? 'Critical Risk' : h.severity === 'high' ? 'High Risk' : h.severity === 'medium' ? 'Medium Risk' : 'Low Risk';
+    const cls  = (h.severity==='high'||h.severity==='critical') ? 'hazard-high' : h.severity==='medium' ? 'hazard-med' : 'hazard-low';
+    const lvl  = {critical:'Critical Risk',high:'High Risk',medium:'Medium Risk',low:'Low Risk'}[h.severity]||'Risk';
     const docLink = h.protocol_url ? `<a href="${h.protocol_url}" target="_blank" style="font-size:11px;color:var(--gold);display:block;margin-top:3px">View Protocol →</a>` : '';
-    return `<div class="hazard-row ${cls}">
-      <div class="hazard-icon">${icon}</div>
-      <div>
-        <div class="hazard-level">${lvl}</div>
-        <div class="hazard-text">${h.description}</div>
-        ${docLink}
-      </div>
-    </div>`;
+    return `<div class="hazard-row ${cls}"><div class="hazard-icon">${icons[h.type]||'⚠️'}</div><div><div class="hazard-level">${lvl}</div><div class="hazard-text">${h.description}</div>${docLink}</div></div>`;
   }).join('');
 }
 
 function renderNotifications(notifs) {
   const el = document.getElementById('notif-list');
-  if (!notifs.length) {
-    el.innerHTML = '<p style="font-size:13px;color:var(--text3)">No new notifications.</p>';
-    return;
-  }
-  el.innerHTML = notifs.map(n => `
-    <div style="padding:8px 0;border-bottom:0.5px solid var(--border)">
-      <div style="font-size:12px;font-weight:500;color:var(--text)">${n.title}</div>
-      <div style="font-size:12px;color:var(--text2);margin-top:2px">${n.message}</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:2px">${formatDateTime(n.sent_at)}</div>
-    </div>`).join('');
+  if (!notifs.length) { el.innerHTML='<p style="font-size:13px;color:var(--text3)">No new notifications.</p>'; return; }
+  el.innerHTML = notifs.map(n => `<div style="padding:8px 0;border-bottom:0.5px solid var(--border)"><div style="font-size:12px;font-weight:500;color:var(--text)">${n.title}</div><div style="font-size:12px;color:var(--text2);margin-top:2px">${n.message}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${formatDateTime(n.sent_at)}</div></div>`).join('');
 }
 
-// ══════════════════════════════════════════════════
-//  TASKS  →  api/tasks.php
-// ══════════════════════════════════════════════════
+// ══════════════════════════
+//  TASKS
+// ══════════════════════════
 async function loadTasks() {
   if (!SHIFT_ID) return;
   try {
     const data = await api(`tasks.php?shift_id=${SHIFT_ID}`);
     TASKS = data.tasks || [];
     renderTasks();
-  } catch (err) {
+  } catch(err) {
     document.getElementById('task-list').innerHTML =
       `<p style="font-size:13px;color:var(--danger)">Could not load tasks: ${err.message}</p>`;
   }
@@ -506,86 +537,56 @@ async function loadTasks() {
 
 function renderTasks() {
   const el = document.getElementById('task-list');
-  if (!TASKS.length) {
-    el.innerHTML = '<p style="font-size:13px;color:var(--text3)">No tasks assigned for this shift.</p>';
-    return;
-  }
-
-  el.innerHTML = TASKS.map((t, i) => {
-    const isDone = TASKS_DONE.has(t.task_id) || t.log_status === 'completed';
+  if (!TASKS.length) { el.innerHTML='<p style="font-size:13px;color:var(--text3)">No tasks for this shift.</p>'; return; }
+  el.innerHTML = TASKS.map(t => {
+    const isDone = TASKS_DONE.has(t.task_id) || t.log_status==='completed';
     if (isDone) TASKS_DONE.add(t.task_id);
-
-    const priorityBadge = t.priority === 'critical'
-      ? `<span class="badge badge-danger" style="font-size:10px;padding:1px 6px">Mandatory</span>`
-      : t.priority === 'urgent'
-        ? `<span class="badge badge-warn" style="font-size:10px;padding:1px 6px">Urgent</span>`
-        : '';
-
+    const badgeMap = {critical:`<span class="badge badge-danger" style="font-size:10px;padding:1px 6px">Mandatory</span>`,urgent:`<span class="badge badge-warn" style="font-size:10px;padding:1px 6px">Urgent</span>`};
+    const badge = badgeMap[t.priority] || '';
     return `<div class="task-row" id="task-row-${t.task_id}">
-      <div class="task-check ${isDone ? 'done' : ''}" onclick="toggleTask(${t.task_id}, ${i})"></div>
+      <div class="task-check ${isDone?'done':''}" onclick="toggleTask(${t.task_id})"></div>
       <div>
-        <div class="task-text ${isDone ? 'done' : ''}">${t.title}</div>
-        <div class="task-meta">${capitalize(t.category || '')} · ${t.est_duration} min ${priorityBadge}</div>
+        <div class="task-text ${isDone?'done':''}">${t.title}</div>
+        <div class="task-meta">${capitalize(t.category||'')} · ${t.est_duration} min ${badge}</div>
       </div>
     </div>`;
   }).join('');
-
   updateTaskProgress();
 }
 
-async function toggleTask(taskId, idx) {
+async function toggleTask(taskId) {
   const isDone = TASKS_DONE.has(taskId);
   const newStatus = isDone ? 'started' : 'completed';
-
-  // Optimistic UI update
-  if (isDone) {
-    TASKS_DONE.delete(taskId);
-  } else {
-    TASKS_DONE.add(taskId);
-  }
+  isDone ? TASKS_DONE.delete(taskId) : TASKS_DONE.add(taskId);
   const check = document.querySelector(`#task-row-${taskId} .task-check`);
   const text  = document.querySelector(`#task-row-${taskId} .task-text`);
   if (check) check.classList.toggle('done', !isDone);
   if (text)  text.classList.toggle('done', !isDone);
   updateTaskProgress();
-
-  // Save to database
   try {
-    await api('tasks.php', {
-      method: 'POST',
-      body: JSON.stringify({
-        task_id:    taskId,
-        status:     newStatus,
-        input_type: 'text',
-      }),
-    });
-    toast(newStatus === 'completed' ? '✓ Task marked complete' : 'Task reopened');
-  } catch (err) {
-    toast('Could not save: ' + err.message);
-    // Revert on failure
-    if (isDone) TASKS_DONE.add(taskId);
-    else        TASKS_DONE.delete(taskId);
+    await api('tasks.php', { method:'POST', body: JSON.stringify({task_id:taskId, status:newStatus, input_type:'text'}) });
+    toast(newStatus==='completed' ? '✓ Task marked complete' : 'Task reopened');
+  } catch(err) {
+    isDone ? TASKS_DONE.add(taskId) : TASKS_DONE.delete(taskId);
     if (check) check.classList.toggle('done', isDone);
     if (text)  text.classList.toggle('done', isDone);
     updateTaskProgress();
+    toast('Could not save: ' + err.message);
   }
 }
 
 function updateTaskProgress() {
-  const total = TASKS.length;
-  const done  = TASKS_DONE.size;
-  const pct   = total > 0 ? Math.round(done / total * 100) : 0;
-
-  document.getElementById('task-progress').style.width      = pct + '%';
-  document.getElementById('task-progress-label').textContent = `${done} of ${total} complete`;
-  document.getElementById('stat-done').textContent           = done;
-  document.getElementById('shift-progress').style.width     = pct + '%';
-  document.getElementById('progress-label').textContent     = `${done} of ${total} tasks complete`;
+  const total = TASKS.length, done = TASKS_DONE.size;
+  const pct = total > 0 ? Math.round(done/total*100) : 0;
+  document.getElementById('task-progress').style.width       = pct+'%';
+  document.getElementById('task-progress-label').textContent  = `${done} of ${total} complete`;
+  document.getElementById('stat-done').textContent            = done;
+  document.getElementById('progress-label').textContent       = `${done} of ${total} tasks complete`;
 }
 
-// ══════════════════════════════════════════════════
-//  AI CHAT  →  api/chat.php  (or api/tasks.php for logging)
-// ══════════════════════════════════════════════════
+// ══════════════════════════
+//  CHAT
+// ══════════════════════════
 function addMsg(text, isUser) {
   const log = document.getElementById('chat-log');
   const div = document.createElement('div');
@@ -601,198 +602,92 @@ async function sendChat() {
   const msg = inp.value.trim();
   if (!msg) return;
   inp.value = '';
-
   addMsg(msg, true);
-  document.getElementById('chip-row').style.display = 'none';
-
-  // Typing indicator
+  document.getElementById('chip-row') && (document.getElementById('chip-row').style.display='none');
   const typingEl = addMsg('…', false);
-  typingEl.style.opacity = '0.5';
-
+  typingEl.style.opacity = '0.4';
   try {
-    // Check if this is a task log message
     const isLog = /\blog\b|complet|done|finish/i.test(msg);
     let reply = '';
-
     if (isLog && TASKS.length) {
-      // Log the first uncompleted task
       const task = TASKS.find(t => !TASKS_DONE.has(t.task_id));
       if (task) {
-        const data = await api('tasks.php', {
-          method: 'POST',
-          body: JSON.stringify({
-            task_id:    task.task_id,
-            status:     'completed',
-            raw_input:  msg,
-            input_type: 'text',
-          }),
-        });
-        TASKS_DONE.add(task.task_id);
-        renderTasks();
-        reply = `✓ Logged: "${task.title}" marked complete.\n\nAI Summary: ${data.ai_summary || 'Task completed successfully.'}`;
-      } else {
-        reply = 'All tasks are already completed. Great work!';
-      }
+        const data = await api('tasks.php', {method:'POST', body:JSON.stringify({task_id:task.task_id, status:'completed', raw_input:msg, input_type:'text'})});
+        TASKS_DONE.add(task.task_id); renderTasks();
+        reply = `✓ Logged: "${task.title}" marked complete.\n\nSummary: ${data.ai_summary||'Task completed.'}`;
+      } else { reply = 'All tasks are already completed. Great work!'; }
     } else {
-      // Send to AI chat endpoint
-      const data = await api('chat.php', {
-        method: 'POST',
-        body: JSON.stringify({ message: msg }),
-      });
-      reply = data.reply || 'No response received.';
+      const data = await api('chat.php', {method:'POST', body:JSON.stringify({message:msg})});
+      reply = data.reply || '—';
     }
-
-    typingEl.textContent = reply;
-    typingEl.style.opacity = '1';
-
-  } catch (err) {
-    typingEl.textContent = 'Could not reach AI. Check your connection. (' + err.message + ')';
+    typingEl.textContent = reply; typingEl.style.opacity = '1';
+  } catch(err) {
+    typingEl.textContent = 'Could not reach AI. (' + err.message + ')';
     typingEl.style.opacity = '1';
   }
-
-  document.getElementById('chat-log').scrollTop = 9999;
 }
 
-function sendChip(msg) {
-  document.getElementById('chat-input').value = msg;
-  sendChat();
-}
+function sendChip(msg) { document.getElementById('chat-input').value=msg; sendChat(); }
 
-// Voice input (uses Web Speech API if available)
 function toggleVoice() {
   const btn = document.getElementById('voice-toggle');
-  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-    toast('Voice not supported in this browser. Try Chrome.');
-    return;
-  }
+  if (!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)) { toast('Voice not supported. Try Chrome.'); return; }
   if (RECORDING) return;
-  RECORDING = true;
-  btn.style.background = 'var(--danger)';
-  document.getElementById('chat-input').placeholder = 'Listening...';
-
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const rec = new SR();
-  rec.lang = 'en-ZA';
-  rec.start();
-  rec.onresult = e => {
-    document.getElementById('chat-input').value = e.results[0][0].transcript;
-  };
-  rec.onend = () => {
-    RECORDING = false;
-    btn.style.background = 'var(--coal)';
-    document.getElementById('chat-input').placeholder = 'Type or speak your update...';
-  };
-  rec.onerror = () => {
-    RECORDING = false;
-    btn.style.background = 'var(--coal)';
-    toast('Could not capture voice. Try again.');
-  };
+  RECORDING = true; btn.style.background='var(--danger)';
+  document.getElementById('chat-input').placeholder='Listening...';
+  const SR = window.SpeechRecognition||window.webkitSpeechRecognition;
+  const rec = new SR(); rec.lang='en-ZA'; rec.start();
+  rec.onresult = e => { document.getElementById('chat-input').value=e.results[0][0].transcript; };
+  rec.onend = () => { RECORDING=false; btn.style.background='var(--coal)'; document.getElementById('chat-input').placeholder='Type or speak your update...'; };
+  rec.onerror = () => { RECORDING=false; btn.style.background='var(--coal)'; toast('Voice capture failed.'); };
 }
 
-// ══════════════════════════════════════════════════
-//  REPORT  →  api/report.php
-// ══════════════════════════════════════════════════
+// ══════════════════════════
+//  REPORT
+// ══════════════════════════
 async function generateReport() {
-  const work   = document.getElementById('rpt-work').value   || 'Completed assigned shift tasks.';
-  const issues = document.getElementById('rpt-issues').value || 'No incidents reported.';
-  const equip  = document.getElementById('rpt-equip').value  || 'All equipment operational.';
-  const notes  = document.getElementById('rpt-notes').value  || 'No additional notes.';
-
+  const work=document.getElementById('rpt-work').value||'Completed assigned shift tasks.';
+  const issues=document.getElementById('rpt-issues').value||'No incidents reported.';
+  const equip=document.getElementById('rpt-equip').value||'All equipment operational.';
+  const notes=document.getElementById('rpt-notes').value||'No additional notes.';
   setBtn('report-btn', true, 'Generating...');
-
   try {
-    const data = await api('report.php', {
-      method: 'POST',
-      body: JSON.stringify({
-        work_done:        work,
-        issues:           issues,
-        equipment_status: equip,
-        handover_notes:   notes,
-        tasks_completed:  `${TASKS_DONE.size}/${TASKS.length}`,
-      }),
-    });
-
+    const data = await api('report.php', {method:'POST', body:JSON.stringify({work_done:work,issues,equipment_status:equip,handover_notes:notes,tasks_completed:`${TASKS_DONE.size}/${TASKS.length}`})});
     document.getElementById('report-text').textContent = data.report_text;
     document.getElementById('report-out').style.display = 'block';
-    document.getElementById('report-out').scrollIntoView({ behavior: 'smooth' });
-    toast('Report generated and saved ✓');
-
-  } catch (err) {
-    // Fallback: generate locally if API fails
-    const now = new Date();
+    document.getElementById('report-out').scrollIntoView({behavior:'smooth'});
+    toast('Report saved ✓');
+  } catch(err) {
+    const now=new Date();
     document.getElementById('report-text').textContent =
-      `SHIFT REPORT — ${EMPLOYEE.site || 'Witwatersrand Deep Level'}\n` +
-      `━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-      `Employee : ${EMPLOYEE.name} ${EMPLOYEE.surname} (${EMPLOYEE.emp_num})\n` +
-      `Zone     : ${EMPLOYEE.zone} · ${EMPLOYEE.level}\n` +
-      `Date     : ${now.toLocaleDateString()}\n` +
-      `Generated: ${now.toLocaleTimeString()}\n\n` +
-      `TASKS COMPLETED: ${TASKS_DONE.size}/${TASKS.length}\n\n` +
-      `WORK SUMMARY:\n${work}\n\n` +
-      `INCIDENTS / ISSUES:\n${issues}\n\n` +
-      `EQUIPMENT STATUS:\n${equip}\n\n` +
-      `HANDOVER NOTES:\n${notes}\n\n` +
-      `Signature: ${EMPLOYEE.name} ${EMPLOYEE.surname}\n` +
-      `━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-      `(Generated offline — could not reach server: ${err.message})`;
-    document.getElementById('report-out').style.display = 'block';
-    document.getElementById('report-out').scrollIntoView({ behavior: 'smooth' });
-  } finally {
-    setBtn('report-btn', false, 'Generate AI Report ↗');
-  }
+      `SHIFT REPORT — ${EMPLOYEE.site||'Witwatersrand Deep Level'}\n${'─'.repeat(34)}\n`+
+      `Employee : ${EMPLOYEE.name} ${EMPLOYEE.surname} (${EMPLOYEE.emp_num})\n`+
+      `Shift    : ${capitalize(getCurrentShiftType())} (${getShiftHours(getCurrentShiftType())})\n`+
+      `Date     : ${now.toLocaleDateString()}\nGenerated: ${now.toLocaleTimeString()}\n\n`+
+      `TASKS COMPLETED: ${TASKS_DONE.size}/${TASKS.length}\n\nWORK SUMMARY:\n${work}\n\nISSUES:\n${issues}\n\nEQUIPMENT:\n${equip}\n\nHANDOVER:\n${notes}\n\n`+
+      `Signature: ${EMPLOYEE.name} ${EMPLOYEE.surname}\n${'─'.repeat(34)}\n(Offline — ${err.message})`;
+    document.getElementById('report-out').style.display='block';
+    document.getElementById('report-out').scrollIntoView({behavior:'smooth'});
+  } finally { setBtn('report-btn', false, 'Generate AI Report ↗'); }
 }
 
-async function submitReport() {
-  setBtn('submit-btn', true, 'Submitting...');
-  toast('Report submitted successfully ✓', 3000);
-  setBtn('submit-btn', false, 'Submit');
-}
+function submitReport() { toast('Report submitted ✓', 3000); }
+function copyReport() { navigator.clipboard.writeText(document.getElementById('report-text').textContent).then(()=>toast('Copied ✓')); }
 
-function copyReport() {
-  const text = document.getElementById('report-text').textContent;
-  navigator.clipboard.writeText(text).then(() => toast('Copied to clipboard ✓'));
-}
-
-// ══════════════════════════════════════════════════
-//  UI HELPERS
-// ══════════════════════════════════════════════════
+// ══════════════════════════
+//  TAB SWITCHING
+// ══════════════════════════
 function switchTab(t) {
-  ['dashboard', 'tasks', 'report'].forEach(x => {
-    const p = document.getElementById('tab-' + x);
-    if (p) p.classList.remove('active');
-    document.getElementById('tab-btn-' + x)?.classList.remove('active');
+  ['dashboard','tasks','report'].forEach(x => {
+    document.getElementById('tab-'+x)?.classList.remove('active');
+    document.getElementById('tab-btn-'+x)?.classList.remove('active');
   });
-  const chat = document.getElementById('tab-ai');
-  if (chat) chat.classList.remove('active');
+  document.getElementById('tab-ai')?.classList.remove('active');
   document.getElementById('tab-btn-ai')?.classList.remove('active');
-
-  if (t === 'ai') {
-    chat.classList.add('active');
-  } else {
-    document.getElementById('tab-' + t)?.classList.add('active');
-  }
-  document.getElementById('tab-btn-' + t)?.classList.add('active');
+  if (t==='ai') document.getElementById('tab-ai').classList.add('active');
+  else document.getElementById('tab-'+t)?.classList.add('active');
+  document.getElementById('tab-btn-'+t)?.classList.add('active');
 }
-
-function updateClock() {
-  const now = new Date();
-  const pad = n => n.toString().padStart(2, '0');
-  document.getElementById('clock-disp').textContent =
-    `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-}
-
-function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
-
-function formatTime(dt) {
-  if (!dt) return '—';
-  return new Date(dt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
-
-function formatDateTime(dt) {
-  if (!dt) return '—';
-  return new Date(dt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
-}
-
 </script>
 </body>
 </html>

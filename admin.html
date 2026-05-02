@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ShiftAI Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#C8960C;--gold-lt:#FFF3CC;--gold-dk:#7A5A00;
+  --coal:#141412;--coal2:#1E1E1B;--coal3:#2A2A27;--coal4:#363632;
+  --surface:#F5F3EE;--surface2:#EDEAE3;--surface3:#E4E1D8;
+  --danger:#E24B4A;--danger-lt:#FCEBEB;
+  --success:#3B8C11;--success-lt:#EAF3DE;
+  --warn:#BA7517;--warn-lt:#FAEEDA;
+  --info:#1A6FC4;--info-lt:#E6F1FB;
+  --text:#1A1A18;--text2:#5A5955;--text3:#8A8880;
+  --border:#E0DDD5;--border2:#D0CCC3;
+  --r:8px;--r2:12px;
+  font-family:'Barlow',sans-serif;
+}
+body{background:var(--surface);color:var(--text);min-height:100vh;display:flex}
+
+/* ── Sidebar ─────────────────────────── */
+.sidebar{width:220px;background:var(--coal);min-height:100vh;display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100;transition:transform 0.2s}
+.sidebar-logo{padding:20px 18px 16px;border-bottom:1px solid var(--coal3)}
+.logo-mark{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:var(--gold);letter-spacing:1px}
+.logo-sub{font-size:10px;color:#555;letter-spacing:0.8px;text-transform:uppercase;margin-top:1px}
+.sidebar-user{padding:14px 18px;border-bottom:1px solid var(--coal3);display:flex;align-items:center;gap:10px}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:600;color:var(--coal);flex-shrink:0}
+.user-name{font-size:13px;font-weight:500;color:#ddd;line-height:1.2}
+.user-role{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:0.5px}
+.nav-section{padding:12px 0 4px}
+.nav-label{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:0.8px;padding:0 18px;margin-bottom:4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;color:#888;font-size:13px;transition:all 0.12s;position:relative;border-left:2px solid transparent}
+.nav-item:hover{background:var(--coal3);color:#ccc}
+.nav-item.active{background:rgba(200,150,12,0.1);color:var(--gold);border-left-color:var(--gold)}
+.nav-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--danger);color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;font-family:'Barlow Condensed',sans-serif}
+.sidebar-bottom{margin-top:auto;padding:14px 18px;border-top:1px solid var(--coal3)}
+.logout-link{display:flex;align-items:center;gap:8px;font-size:13px;color:#888;cursor:pointer;padding:6px 0;transition:color 0.12s}
+.logout-link:hover{color:var(--danger)}
+
+/* ── Main area ───────────────────────── */
+.main{margin-left:220px;flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50}
+.topbar-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:600;color:var(--text);flex:1}
+.topbar-sub{font-size:12px;color:var(--text3);margin-top:1px}
+.topbar-actions{display:flex;gap:8px;align-items:center}
+.clock-pill{background:var(--coal);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:13px;padding:6px 12px;border-radius:20px;letter-spacing:1px}
+.shift-pill{font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.3px}
+.shift-morning{background:#FFF3CC;color:#7A5A00}
+.shift-afternoon{background:#E6F1FB;color:#0C447C}
+.shift-night{background:#2A2A27;color:#aaa}
+
+/* ── Page panels ─────────────────────── */
+.page{display:none;flex:1;padding:24px;flex-direction:column;gap:20px}
+.page.active{display:flex}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.page-title{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:600;color:var(--text)}
+.page-desc{font-size:13px;color:var(--text3);margin-top:2px}
+
+/* ── Cards ───────────────────────────── */
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--r2);padding:20px}
+.card-sm{padding:16px}
+.card-label{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.kpi-card{background:#fff;border:1px solid var(--border);border-radius:var(--r2);padding:16px;position:relative;overflow:hidden}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi-gold::before{background:var(--gold)}
+.kpi-danger::before{background:var(--danger)}
+.kpi-success::before{background:var(--success)}
+.kpi-info::before{background:var(--info)}
+.kpi-val{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:600;color:var(--text);line-height:1}
+.kpi-lbl{font-size:12px;color:var(--text3);margin-top:4px}
+.kpi-delta{font-size:11px;font-weight:500;margin-top:6px}
+.delta-up{color:var(--success)}
+.delta-down{color:var(--danger)}
+
+/* ── Table ───────────────────────────── */
+.table-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead{background:var(--surface)}
+th{padding:10px 14px;text-align:left;font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface)}
+.td-mono{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text2)}
+.td-actions{display:flex;gap:6px}
+
+/* ── Badges ──────────────────────────── */
+.badge{display:inline-flex;align-items:center;font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;font-family:'Barlow Condensed',sans-serif;white-space:nowrap}
+.b-gold{background:var(--gold-lt);color:var(--gold-dk)}
+.b-danger{background:var(--danger-lt);color:var(--danger)}
+.b-success{background:var(--success-lt);color:var(--success)}
+.b-warn{background:var(--warn-lt);color:var(--warn)}
+.b-info{background:var(--info-lt);color:var(--info)}
+.b-gray{background:var(--surface2);color:var(--text3)}
+
+/* ── Buttons ─────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r);font-family:'Barlow',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all 0.12s;white-space:nowrap}
+.btn-primary{background:var(--coal);color:#fff}
+.btn-primary:hover{background:var(--coal3)}
+.btn-gold{background:var(--gold);color:var(--coal);font-weight:600}
+.btn-gold:hover{opacity:0.9}
+.btn-outline{background:#fff;color:var(--text2);border:1px solid var(--border)}
+.btn-outline:hover{border-color:var(--border2);background:var(--surface)}
+.btn-danger{background:var(--danger-lt);color:var(--danger);border:1px solid var(--danger-lt)}
+.btn-danger:hover{background:var(--danger);color:#fff}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-icon{width:30px;height:30px;padding:0;justify-content:center;border-radius:6px}
+
+/* ── Forms ───────────────────────────── */
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.field label{font-size:12px;font-weight:500;color:var(--text2)}
+.field input,.field select,.field textarea{padding:9px 12px;border:1px solid var(--border);border-radius:var(--r);font-size:13px;font-family:'Barlow',sans-serif;color:var(--text);background:#fff;outline:none;transition:border-color 0.12s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold)}
+.field textarea{resize:vertical;min-height:80px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field-hint{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* ── Modal ───────────────────────────── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:var(--r2);width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
+.modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:600;color:var(--text)}
+.modal-close{width:28px;height:28px;border-radius:6px;background:var(--surface);border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--text3)}
+.modal-close:hover{background:var(--surface2)}
+.modal-body{padding:20px 24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+
+/* ── Search / Filter bar ─────────────── */
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.search-box{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:8px 12px;flex:1;min-width:200px}
+.search-box input{border:none;outline:none;font-size:13px;color:var(--text);background:transparent;width:100%;font-family:'Barlow',sans-serif}
+.search-icon{color:var(--text3);font-size:14px}
+
+/* ── Toast ───────────────────────────── */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--coal);color:#fff;font-size:13px;padding:10px 18px;border-radius:var(--r);opacity:0;transition:opacity 0.3s;z-index:999;pointer-events:none;max-width:320px;line-height:1.4}
+#toast.show{opacity:1}
+#toast.toast-success{background:var(--success)}
+#toast.toast-danger{background:var(--danger)}
+
+/* ── Progress bar ────────────────────── */
+.progress{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;background:var(--gold);transition:width 0.4s}
+
+/* ── Toggle switch ───────────────────── */
+.toggle{width:36px;height:20px;border-radius:10px;background:var(--border2);cursor:pointer;position:relative;transition:background 0.15s;flex-shrink:0}
+.toggle.on{background:var(--success)}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left 0.15s}
+.toggle.on::after{left:18px}
+
+/* ── Audit log ───────────────────────── */
+.audit-row{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+.audit-row:last-child{border-bottom:none}
+.audit-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.audit-time{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);min-width:80px;flex-shrink:0;margin-top:1px}
+.audit-text{font-size:13px;color:var(--text);line-height:1.4}
+.audit-user{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* ── Chart placeholder ───────────────── */
+.chart-area{height:180px;background:var(--surface);border-radius:var(--r);display:flex;align-items:flex-end;justify-content:space-around;padding:16px 12px 8px;gap:8px}
+.bar-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.bar{width:100%;border-radius:4px 4px 0 0;background:var(--gold);transition:height 0.5s;min-height:4px}
+.bar-label{font-size:10px;color:var(--text3);font-family:'Barlow Condensed',sans-serif;white-space:nowrap}
+.bar-val{font-size:11px;color:var(--text2);font-weight:500}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-220px)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .grid-4{grid-template-columns:repeat(2,1fr)}
+  .grid-3{grid-template-columns:1fr 1fr}
+  .grid-2{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ════ SIDEBAR ════ -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">⛏ ShiftAI</div>
+    <div class="logo-sub">Admin Control Panel</div>
+  </div>
+  <div class="sidebar-user">
+    <div class="avatar">KM</div>
+    <div><div class="user-name">Kwena Mokoena</div><div class="user-role">System Admin</div></div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Overview</div>
+    <div class="nav-item active" onclick="showPage('dashboard')"><span class="nav-icon">◫</span>Dashboard</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Management</div>
+    <div class="nav-item" onclick="showPage('users')"><span class="nav-icon">👷</span>User Management</div>
+    <div class="nav-item" onclick="showPage('data')"><span class="nav-icon">🗄</span>Data Management</div>
+    <div class="nav-item" onclick="showPage('process')"><span class="nav-icon">⚙</span>Process Control <span class="nav-badge" id="pending-badge">3</span></div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Intelligence</div>
+    <div class="nav-item" onclick="showPage('reports')"><span class="nav-icon">📊</span>Reports & Analytics</div>
+    <div class="nav-item" onclick="showPage('comms')"><span class="nav-icon">📣</span>Communications</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">System</div>
+    <div class="nav-item" onclick="showPage('config')"><span class="nav-icon">🔧</span>Configuration</div>
+    <div class="nav-item" onclick="showPage('security')"><span class="nav-icon">🔐</span>Security & Access</div>
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="logout-link" onclick="confirmLogout()">⏻ &nbsp;Logout</div>
+  </div>
+</nav>
+
+<!-- ════ MAIN ════ -->
+<div class="main">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div>
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="topbar-sub" id="topbar-sub">Overview of your mining operation</div>
+    </div>
+    <div class="topbar-actions">
+      <div class="clock-pill" id="admin-clock">--:--:--</div>
+      <div class="shift-pill" id="shift-pill">— Shift</div>
+    </div>
+  </div>
+
+  <!-- ── DASHBOARD PAGE ── -->
+  <div class="page active" id="page-dashboard">
+    <div class="grid-4">
+      <div class="kpi-card kpi-gold"><div class="kpi-val">47</div><div class="kpi-lbl">Active Workers</div><div class="kpi-delta delta-up">↑ 3 from yesterday</div></div>
+      <div class="kpi-card kpi-success"><div class="kpi-val">142</div><div class="kpi-lbl">Tasks Completed Today</div><div class="kpi-delta delta-up">↑ 91% completion rate</div></div>
+      <div class="kpi-card kpi-danger"><div class="kpi-val" id="kpi-hazards">3</div><div class="kpi-lbl">Active Hazards</div><div class="kpi-delta delta-down">↑ 1 new since morning</div></div>
+      <div class="kpi-card kpi-info"><div class="kpi-val">12</div><div class="kpi-lbl">Reports Submitted</div><div class="kpi-delta delta-up">↑ All shifts covered</div></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-label">Task Completion by Shift (This Week)</div>
+        <div class="chart-area" id="chart-tasks">
+          <div class="bar-col"><div class="bar" style="height:120px"></div><div class="bar-val">94%</div><div class="bar-label">Mon</div></div>
+          <div class="bar-col"><div class="bar" style="height:100px"></div><div class="bar-val">88%</div><div class="bar-label">Tue</div></div>
+          <div class="bar-col"><div class="bar" style="height:140px"></div><div class="bar-val">96%</div><div class="bar-label">Wed</div></div>
+          <div class="bar-col"><div class="bar" style="height:90px"></div><div class="bar-val">82%</div><div class="bar-label">Thu</div></div>
+          <div class="bar-col"><div class="bar" style="height:130px;background:var(--gold-dk)"></div><div class="bar-val">91%</div><div class="bar-label">Fri</div></div>
+          <div class="bar-col"><div class="bar" style="height:80px"></div><div class="bar-val">79%</div><div class="bar-label">Sat</div></div>
+          <div class="bar-col"><div class="bar" style="height:60px;background:#ddd"></div><div class="bar-val">—</div><div class="bar-label">Sun</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Shift Status — Right Now</div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+          <div id="shift-status-morning" style="padding:10px 14px;border-radius:8px;background:var(--gold-lt);border-left:3px solid var(--gold)">
+            <div style="font-size:12px;font-weight:500;color:var(--gold-dk)">MORNING SHIFT  06:00–14:00</div>
+            <div style="font-size:13px;color:var(--text);margin-top:3px">18 workers · <span style="color:var(--success)">Active</span></div>
+            <div class="progress" style="margin-top:6px"><div class="progress-fill" id="prog-morning" style="width:0%"></div></div>
+          </div>
+          <div id="shift-status-afternoon" style="padding:10px 14px;border-radius:8px;background:var(--info-lt);border-left:3px solid var(--info)">
+            <div style="font-size:12px;font-weight:500;color:var(--info)">AFTERNOON SHIFT  14:00–22:00</div>
+            <div style="font-size:13px;color:var(--text);margin-top:3px">16 workers · <span id="aft-status">—</span></div>
+            <div class="progress" style="margin-top:6px"><div class="progress-fill" id="prog-afternoon" style="width:0%;background:var(--info)"></div></div>
+          </div>
+          <div id="shift-status-night" style="padding:10px 14px;border-radius:8px;background:var(--coal3);border-left:3px solid #555">
+            <div style="font-size:12px;font-weight:500;color:#888">NIGHT SHIFT  22:00–06:00</div>
+            <div style="font-size:13px;color:#aaa;margin-top:3px">13 workers · <span id="night-status">—</span></div>
+            <div class="progress" style="margin-top:6px;background:#333"><div class="progress-fill" id="prog-night" style="width:0%;background:#888"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Recent Activity</div>
+      <div id="audit-preview">
+        <div class="audit-row"><div class="audit-dot" style="background:var(--success)"></div><div class="audit-time">21:14</div><div><div class="audit-text">Shift report submitted — MIN-4821 J. Mokoena</div><div class="audit-user">Zone 4B · Night Shift</div></div></div>
+        <div class="audit-row"><div class="audit-dot" style="background:var(--danger)"></div><div class="audit-time">20:58</div><div><div class="audit-text">New hazard reported — Methane spike Tunnel 7</div><div class="audit-user">Reported by MIN-5512 L. Nkosi · HIGH severity</div></div></div>
+        <div class="audit-row"><div class="audit-dot" style="background:var(--gold)"></div><div class="audit-time">20:30</div><div><div class="audit-text">Afternoon shift handover completed</div><div class="audit-user">Zone 4B → Night crew · 14/16 tasks done</div></div></div>
+        <div class="audit-row"><div class="audit-dot" style="background:var(--info)"></div><div class="audit-time">18:42</div><div><div class="audit-text">Safety document uploaded — Methane Protocol v3</div><div class="audit-user">Uploaded by MIN-3301 T. Dlamini</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── USER MANAGEMENT PAGE ── -->
+  <div class="page" id="page-users">
+    <div class="page-header">
+      <div>
+        <div class="page-title">User Management</div>
+        <div class="page-desc">Create, edit, assign roles and control permissions</div>
+      </div>
+      <button class="btn btn-gold" onclick="openModal('modal-add-user')">+ Add User</button>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="Search by name, ID or role..." oninput="filterUsers(this.value)"/></div>
+      <select class="btn btn-outline" onchange="filterUsers()" id="role-filter" style="cursor:pointer">
+        <option value="">All Roles</option>
+        <option>Admin</option><option>Supervisor</option><option>Safety Officer</option><option>Miner</option>
+      </select>
+      <select class="btn btn-outline" style="cursor:pointer">
+        <option>All Zones</option><option>Zone 4B</option><option>Tunnel 7</option><option>Zone 4B-South</option>
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table id="users-table">
+        <thead><tr>
+          <th>Employee</th><th>ID</th><th>Role</th><th>Zone</th><th>Shift</th><th>Status</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="users-tbody">
+          <tr>
+            <td><div style="font-weight:500">James Mokoena</div><div style="font-size:11px;color:var(--text3)">jmokoena@shiftai.co.za</div></td>
+            <td class="td-mono">MIN-4821</td>
+            <td><span class="badge b-info">Miner</span></td>
+            <td>Zone 4B</td>
+            <td>Morning</td>
+            <td><span class="badge b-success">Active</span></td>
+            <td><div class="td-actions">
+              <button class="btn btn-outline btn-sm btn-icon" onclick="editUser('MIN-4821')" title="Edit">✏</button>
+              <button class="btn btn-outline btn-sm btn-icon" onclick="resetPassword('MIN-4821')" title="Reset PIN">🔑</button>
+              <button class="btn btn-danger btn-sm btn-icon" onclick="deleteUser('MIN-4821')" title="Deactivate">✕</button>
+            </div></td>
+          </tr>
+          <tr>
+            <td><div style="font-weight:500">Thabo Dlamini</div><div style="font-size:11px;color:var(--text3)">tdlamini@shiftai.co.za</div></td>
+            <td class="td-mono">MIN-3301</td>
+            <td><span class="badge b-gold">Supervisor</span></td>
+            <td>Zone 4B</td>
+            <td>Morning</td>
+            <td><span class="badge b-success">Active</span></td>
+            <td><div class="td-actions">
+              <button class="btn btn-outline btn-sm btn-icon" onclick="editUser('MIN-3301')" title="Edit">✏</button>
+              <button class="btn btn-outline btn-sm btn-icon" title="Reset PIN">🔑</button>
+              <button class="btn btn-danger btn-sm btn-icon" title="Deactivate">✕</button>
+            </div></td>
+          </tr>
+          <tr>
+            <td><div style="font-weight:500">Lerato Nkosi</div><div style="font-size:11px;color:var(--text3)">lnkosi@shiftai.co.za</div></td>
+            <td class="td-mono">MIN-5512</td>
+            <td><span class="badge b-danger">Safety Officer</span></td>
+            <td>Tunnel 7</td>
+            <td>Afternoon</td>
+            <td><span class="badge b-success">Active</span></td>
+            <td><div class="td-actions">
+              <button class="btn btn-outline btn-sm btn-icon" title="Edit">✏</button>
+              <button class="btn btn-outline btn-sm btn-icon" title="Reset PIN">🔑</button>
+              <button class="btn btn-danger btn-sm btn-icon" title="Deactivate">✕</button>
+            </div></td>
+          </tr>
+          <tr>
+            <td><div style="font-weight:500">Sipho Zulu</div><div style="font-size:11px;color:var(--text3)">szulu@shiftai.co.za</div></td>
+            <td class="td-mono">MIN-6620</td>
+            <td><span class="badge b-info">Miner</span></td>
+            <td>Zone 4B-South</td>
+            <td>Night</td>
+            <td><span class="badge b-warn">On Leave</span></td>
+            <td><div class="td-actions">
+              <button class="btn btn-outline btn-sm btn-icon" title="Edit">✏</button>
+              <button class="btn btn-outline btn-sm btn-icon" title="Reset PIN">🔑</button>
+              <button class="btn btn-danger btn-sm btn-icon" title="Deactivate">✕</button>
+            </div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Permissions matrix -->
+    <div class="card">
+      <div class="card-label">Role Permissions Matrix</div>
+      <div class="table-wrap" style="border:none">
+        <table>
+          <thead><tr>
+            <th>Permission</th>
+            <th style="text-align:center">Miner</th>
+            <th style="text-align:center">Supervisor</th>
+            <th style="text-align:center">Safety Officer</th>
+            <th style="text-align:center">Admin</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>View own tasks</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td></tr>
+            <tr><td>Log task progress</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td></tr>
+            <tr><td>Report hazards</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td></tr>
+            <tr><td>View all workers</td><td style="text-align:center">❌</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td></tr>
+            <tr><td>Approve/reject tasks</td><td style="text-align:center">❌</td><td style="text-align:center">✅</td><td style="text-align:center">❌</td><td style="text-align:center">✅</td></tr>
+            <tr><td>Upload safety documents</td><td style="text-align:center">❌</td><td style="text-align:center">❌</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td></tr>
+            <tr><td>Access admin panel</td><td style="text-align:center">❌</td><td style="text-align:center">❌</td><td style="text-align:center">❌</td><td style="text-align:center">✅</td></tr>
+            <tr><td>Export reports</td><td style="text-align:center">❌</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DATA MANAGEMENT PAGE ── -->
+  <div class="page" id="page-data">
+    <div class="page-header">
+      <div><div class="page-title">Data Management</div><div class="page-desc">Records, documents, and database maintenance</div></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline" onclick="openModal('modal-upload')">↑ Upload Document</button>
+        <button class="btn btn-gold" onclick="openModal('modal-add-hazard')">+ Add Hazard</button>
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="kpi-card kpi-gold"><div class="kpi-val">4</div><div class="kpi-lbl">Safety Documents</div><div class="kpi-delta">All active</div></div>
+      <div class="kpi-card kpi-danger"><div class="kpi-val">3</div><div class="kpi-lbl">Active Hazards</div><div class="kpi-delta delta-down">2 High severity</div></div>
+      <div class="kpi-card kpi-info"><div class="kpi-val">4</div><div class="kpi-lbl">Mine Zones</div><div class="kpi-delta">All monitored</div></div>
+    </div>
+    <div class="card">
+      <div class="card-label">Safety Documents</div>
+      <div class="table-wrap" style="border:none">
+        <table>
+          <thead><tr><th>Title</th><th>Category</th><th>Version</th><th>Uploaded By</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td>Methane Gas Emergency Protocol</td><td><span class="badge b-danger">Gas</span></td><td class="td-mono">v2.0</td><td>L. Nkosi</td><td>2025-03-10</td><td><span class="badge b-success">Active</span></td><td><div class="td-actions"><button class="btn btn-outline btn-sm">View</button><button class="btn btn-danger btn-sm">Archive</button></div></td></tr>
+            <tr><td>Electrical Isolation & Lockout</td><td><span class="badge b-warn">Electrical</span></td><td class="td-mono">v1.0</td><td>L. Nkosi</td><td>2025-01-22</td><td><span class="badge b-success">Active</span></td><td><div class="td-actions"><button class="btn btn-outline btn-sm">View</button><button class="btn btn-danger btn-sm">Archive</button></div></td></tr>
+            <tr><td>Hanging Wall Risk Guide</td><td><span class="badge b-gray">Structural</span></td><td class="td-mono">v1.0</td><td>L. Nkosi</td><td>2025-02-05</td><td><span class="badge b-success">Active</span></td><td><div class="td-actions"><button class="btn btn-outline btn-sm">View</button><button class="btn btn-danger btn-sm">Archive</button></div></td></tr>
+            <tr><td>PPE Requirements — Underground</td><td><span class="badge b-info">PPE</span></td><td class="td-mono">v3.0</td><td>T. Dlamini</td><td>2025-04-01</td><td><span class="badge b-success">Active</span></td><td><div class="td-actions"><button class="btn btn-outline btn-sm">View</button><button class="btn btn-danger btn-sm">Archive</button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Active Hazards</div>
+      <div class="table-wrap" style="border:none">
+        <table>
+          <thead><tr><th>Zone</th><th>Type</th><th>Severity</th><th>Description</th><th>Reported By</th><th>Reported</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td>Tunnel 7</td><td>Gas</td><td><span class="badge b-danger">High</span></td><td>Elevated methane levels. PPE required.</td><td>L. Nkosi</td><td>Today 08:15</td><td><div class="td-actions"><button class="btn btn-outline btn-sm">Edit</button><button class="btn btn-success btn-sm" onclick="resolveHazard(this)" style="background:var(--success-lt);color:var(--success);border:1px solid var(--success-lt)">Resolve</button></div></td></tr>
+            <tr><td>Zone 4B</td><td>Electrical</td><td><span class="badge b-danger">High</span></td><td>Fault on Panel C4. Tagged out.</td><td>T. Dlamini</td><td>Today 06:40</td><td><div class="td-actions"><button class="btn btn-outline btn-sm">Edit</button><button class="btn btn-success btn-sm" style="background:var(--success-lt);color:var(--success);border:1px solid var(--success-lt)" onclick="resolveHazard(this)">Resolve</button></div></td></tr>
+            <tr><td>Zone 4B-South</td><td>Structural</td><td><span class="badge b-warn">Medium</span></td><td>Loose hanging wall. Barricaded.</td><td>L. Nkosi</td><td>Yesterday</td><td><div class="td-actions"><button class="btn btn-outline btn-sm">Edit</button><button class="btn btn-success btn-sm" style="background:var(--success-lt);color:var(--success);border:1px solid var(--success-lt)" onclick="resolveHazard(this)">Resolve</button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PROCESS CONTROL PAGE ── -->
+  <div class="page" id="page-process">
+    <div class="page-header">
+      <div><div class="page-title">Process Control</div><div class="page-desc">Approve requests, monitor workflows, trigger actions</div></div>
+    </div>
+    <div class="card">
+      <div class="card-label">Pending Approvals <span class="badge b-danger" style="margin-left:6px">3 pending</span></div>
+      <div class="table-wrap" style="border:none">
+        <table>
+          <thead><tr><th>Request Type</th><th>Worker</th><th>Details</th><th>Submitted</th><th>Priority</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge b-warn">Leave Request</span></td><td>S. Zulu (MIN-6620)</td><td>Annual leave 3 days — 02–04 May</td><td>Today 19:45</td><td><span class="badge b-warn">Normal</span></td>
+              <td><div class="td-actions"><button class="btn btn-gold btn-sm" onclick="approveReq(this)">Approve</button><button class="btn btn-danger btn-sm" onclick="rejectReq(this)">Reject</button></div></td></tr>
+            <tr><td><span class="badge b-danger">Hazard Report</span></td><td>L. Nkosi (MIN-5512)</td><td>New gas reading spike — Tunnel 7 Section B</td><td>Today 20:58</td><td><span class="badge b-danger">Urgent</span></td>
+              <td><div class="td-actions"><button class="btn btn-gold btn-sm" onclick="approveReq(this)">Acknowledge</button><button class="btn btn-outline btn-sm">Investigate</button></div></td></tr>
+            <tr><td><span class="badge b-info">Task Override</span></td><td>J. Mokoena (MIN-4821)</td><td>Request to skip conveyor inspection — equipment fault</td><td>Today 21:05</td><td><span class="badge b-info">Normal</span></td>
+              <td><div class="td-actions"><button class="btn btn-gold btn-sm" onclick="approveReq(this)">Approve</button><button class="btn btn-danger btn-sm" onclick="rejectReq(this)">Reject</button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-label">Active Workflows</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--surface);border-radius:7px">
+            <div><div style="font-size:13px;font-weight:500">Morning → Afternoon Handover</div><div style="font-size:11px;color:var(--text3);margin-top:2px">Zone 4B · Completed 14:05</div></div>
+            <span class="badge b-success">Done</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--surface);border-radius:7px">
+            <div><div style="font-size:13px;font-weight:500">Afternoon → Night Handover</div><div style="font-size:11px;color:var(--text3);margin-top:2px">Zone 4B · Due 22:00</div></div>
+            <span class="badge b-warn">Pending</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--surface);border-radius:7px">
+            <div><div style="font-size:13px;font-weight:500">Hazard Resolution — Tunnel 7</div><div style="font-size:11px;color:var(--text3);margin-top:2px">Methane spike · Assigned to Safety Officer</div></div>
+            <span class="badge b-danger">In Progress</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Quick Actions</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="btn btn-outline" style="justify-content:flex-start" onclick="toast('🔔 Broadcast sent to all active workers','success')">📣 &nbsp;Broadcast safety alert to all workers</button>
+          <button class="btn btn-outline" style="justify-content:flex-start" onclick="toast('🔄 Night shift tasks assigned','success')">📋 &nbsp;Assign night shift tasks</button>
+          <button class="btn btn-outline" style="justify-content:flex-start" onclick="toast('✅ Handover checklist triggered','success')">✅ &nbsp;Trigger shift handover checklist</button>
+          <button class="btn btn-danger" style="justify-content:flex-start;width:100%" onclick="emergencyAlert()">🚨 &nbsp;EMERGENCY — Evacuate Zone</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── REPORTS PAGE ── -->
+  <div class="page" id="page-reports">
+    <div class="page-header">
+      <div><div class="page-title">Reports & Analytics</div><div class="page-desc">Performance, KPIs, and decision-making data</div></div>
+      <div style="display:flex;gap:8px">
+        <select class="btn btn-outline" style="cursor:pointer"><option>This Week</option><option>This Month</option><option>Last 3 Months</option></select>
+        <button class="btn btn-gold" onclick="toast('📥 Report exported to CSV','success')">↓ Export CSV</button>
+      </div>
+    </div>
+    <div class="grid-4">
+      <div class="kpi-card kpi-gold"><div class="kpi-val">91%</div><div class="kpi-lbl">Task Completion Rate</div><div class="kpi-delta delta-up">↑ 3% vs last week</div></div>
+      <div class="kpi-card kpi-success"><div class="kpi-val">0</div><div class="kpi-lbl">Lost Time Incidents</div><div class="kpi-delta delta-up">7 days incident-free</div></div>
+      <div class="kpi-card kpi-info"><div class="kpi-val">47</div><div class="kpi-lbl">Workers On Site</div><div class="kpi-delta">All zones covered</div></div>
+      <div class="kpi-card kpi-danger"><div class="kpi-val">4.2h</div><div class="kpi-lbl">Avg Response to Hazard</div><div class="kpi-delta delta-down">↑ 0.5h vs target</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-label">Shift Report Summary</div>
+        <div class="table-wrap" style="border:none">
+          <table>
+            <thead><tr><th>Date</th><th>Shift</th><th>Worker</th><th>Tasks</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>Today</td><td>Morning</td><td>J. Mokoena</td><td>5/6</td><td><span class="badge b-success">Submitted</span></td></tr>
+              <tr><td>Today</td><td>Morning</td><td>S. Zulu</td><td>6/6</td><td><span class="badge b-success">Submitted</span></td></tr>
+              <tr><td>Today</td><td>Afternoon</td><td>L. Nkosi</td><td>4/6</td><td><span class="badge b-warn">Pending</span></td></tr>
+              <tr><td>Yesterday</td><td>Night</td><td>T. Dlamini</td><td>6/6</td><td><span class="badge b-success">Submitted</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">KPI Targets vs Actual</div>
+        <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px">
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Task Completion</span><span style="font-weight:500">91% / 95% target</span></div><div class="progress"><div class="progress-fill" style="width:91%"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Hazard Resolution</span><span style="font-weight:500">72% / 90% target</span></div><div class="progress"><div class="progress-fill" style="width:72%;background:var(--warn)"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Report Submission</span><span style="font-weight:500">100% / 100% target</span></div><div class="progress"><div class="progress-fill" style="width:100%;background:var(--success)"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>PPE Compliance</span><span style="font-weight:500">88% / 100% target</span></div><div class="progress"><div class="progress-fill" style="width:88%;background:var(--danger)"></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── COMMUNICATIONS PAGE ── -->
+  <div class="page" id="page-comms">
+    <div class="page-header">
+      <div><div class="page-title">Communications</div><div class="page-desc">Announcements, alerts and notifications</div></div>
+      <button class="btn btn-gold" onclick="openModal('modal-send-msg')">+ Send Announcement</button>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-label">Send Notification</div>
+        <div class="field"><label>Recipients</label>
+          <select><option>All Workers</option><option>Morning Shift Only</option><option>Afternoon Shift</option><option>Night Shift</option><option>Supervisors Only</option><option>Zone 4B Only</option></select>
+        </div>
+        <div class="field"><label>Type</label>
+          <select><option>General Announcement</option><option>Safety Alert</option><option>Task Reminder</option><option>Emergency</option></select>
+        </div>
+        <div class="field"><label>Message</label>
+          <textarea placeholder="Type your announcement here..."></textarea>
+        </div>
+        <button class="btn btn-gold" style="width:100%" onclick="toast('📣 Notification sent to all workers','success')">Send Notification</button>
+      </div>
+      <div class="card">
+        <div class="card-label">Recent Notifications Sent</div>
+        <div style="display:flex;flex-direction:column;gap:0">
+          <div class="audit-row"><div class="audit-dot" style="background:var(--danger)"></div><div class="audit-time">20:58</div><div><div class="audit-text">Methane Alert — Tunnel 7</div><div class="audit-user">Sent to 18 workers · Zone 4B</div></div></div>
+          <div class="audit-row"><div class="audit-dot" style="background:var(--gold)"></div><div class="audit-time">13:45</div><div><div class="audit-text">Shift handover reminder</div><div class="audit-user">Sent to Morning Shift crew · 6 workers</div></div></div>
+          <div class="audit-row"><div class="audit-dot" style="background:var(--info)"></div><div class="audit-time">06:00</div><div><div class="audit-text">Morning shift briefing ready</div><div class="audit-user">Sent to all active workers · 47 recipients</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CONFIG PAGE ── -->
+  <div class="page" id="page-config">
+    <div class="page-header">
+      <div><div class="page-title">System Configuration</div><div class="page-desc">Settings, integrations, and business rules</div></div>
+      <button class="btn btn-gold" onclick="toast('✅ Settings saved','success')">Save Changes</button>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-label">Shift Hours</div>
+        <div class="field"><label>Morning Shift Start</label><input type="time" value="06:00"/></div>
+        <div class="field"><label>Afternoon Shift Start</label><input type="time" value="14:00"/></div>
+        <div class="field"><label>Night Shift Start</label><input type="time" value="22:00"/></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Alert Thresholds</div>
+        <div class="field"><label>Methane Alert Level (%)</label><input type="number" value="1.5" step="0.1"/><div class="field-hint">Workers alerted when reading exceeds this %</div></div>
+        <div class="field"><label>Overdue Task Warning (minutes)</label><input type="number" value="30"/></div>
+        <div class="field"><label>Max Consecutive Shifts</label><input type="number" value="5"/></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Integrations</div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:center;justify-content:space-between"><div><div style="font-size:13px;font-weight:500">Firebase Push Notifications</div><div style="font-size:11px;color:var(--text3)">Real-time worker alerts</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div style="display:flex;align-items:center;justify-content:space-between"><div><div style="font-size:13px;font-weight:500">Email Reports</div><div style="font-size:11px;color:var(--text3)">Daily summary emails</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div style="display:flex;align-items:center;justify-content:space-between"><div><div style="font-size:13px;font-weight:500">SMS Alerts</div><div style="font-size:11px;color:var(--text3)">Emergency SMS gateway</div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+          <div style="display:flex;align-items:center;justify-content:space-between"><div><div style="font-size:13px;font-weight:500">AI Report Generation</div><div style="font-size:11px;color:var(--text3)">Claude API integration</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Site Information</div>
+        <div class="field"><label>Site Name</label><input type="text" value="Witwatersrand Deep Level"/></div>
+        <div class="field"><label>Site Manager</label><input type="text" value="Kwena Mokoena"/></div>
+        <div class="field"><label>Emergency Contact</label><input type="tel" value="+27 11 000 0000"/></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECURITY PAGE ── -->
+  <div class="page" id="page-security">
+    <div class="page-header">
+      <div><div class="page-title">Security & Access Control</div><div class="page-desc">RBAC, audit logs, and suspicious activity monitoring</div></div>
+    </div>
+    <div class="grid-3">
+      <div class="kpi-card kpi-success"><div class="kpi-val">0</div><div class="kpi-lbl">Failed Logins Today</div><div class="kpi-delta delta-up">No suspicious activity</div></div>
+      <div class="kpi-card kpi-info"><div class="kpi-val">47</div><div class="kpi-lbl">Active Sessions</div><div class="kpi-delta">Across all zones</div></div>
+      <div class="kpi-card kpi-gold"><div class="kpi-val">100%</div><div class="kpi-lbl">Auth Coverage</div><div class="kpi-delta delta-up">All workers using JWT</div></div>
+    </div>
+    <div class="card">
+      <div class="card-label">Full Audit Log</div>
+      <div class="toolbar" style="margin-bottom:14px">
+        <div class="search-box"><span class="search-icon">🔍</span><input type="text" placeholder="Search audit log..."/></div>
+        <select class="btn btn-outline" style="cursor:pointer"><option>All Events</option><option>Logins</option><option>Data Changes</option><option>Hazard Reports</option></select>
+      </div>
+      <div id="full-audit">
+        <div class="audit-row"><div class="audit-dot" style="background:var(--success)"></div><div class="audit-time">21:14:03</div><div><div class="audit-text">Shift report submitted</div><div class="audit-user">MIN-4821 J. Mokoena · IP 192.168.1.45 · Zone 4B</div></div></div>
+        <div class="audit-row"><div class="audit-dot" style="background:var(--gold)"></div><div class="audit-time">21:02:11</div><div><div class="audit-text">Task marked complete — Conveyor belt inspection</div><div class="audit-user">MIN-4821 J. Mokoena · Voice input</div></div></div>
+        <div class="audit-row"><div class="audit-dot" style="background:var(--danger)"></div><div class="audit-time">20:58:44</div><div><div class="audit-text">New HIGH hazard reported — Gas · Tunnel 7</div><div class="audit-user">MIN-5512 L. Nkosi · 18 workers notified</div></div></div>
+        <div class="audit-row"><div class="audit-dot" style="background:var(--info)"></div><div class="audit-time">20:30:00</div><div><div class="audit-text">User login</div><div class="audit-user">MIN-3301 T. Dlamini · IP 192.168.1.12 · Supervisor</div></div></div>
+        <div class="audit-row"><div class="audit-dot" style="background:var(--success)"></div><div class="audit-time">18:42:19</div><div><div class="audit-text">Safety document uploaded — PPE Requirements v3</div><div class="audit-user">MIN-3301 T. Dlamini · Admin action</div></div></div>
+        <div class="audit-row"><div class="audit-dot" style="background:var(--warn)"></div><div class="audit-time">14:05:00</div><div><div class="audit-text">Shift handover completed — Morning to Afternoon</div><div class="audit-user">Zone 4B · 18 workers handed over</div></div></div>
+        <div class="audit-row"><div class="audit-dot" style="background:var(--info)"></div><div class="audit-time">06:01:34</div><div><div class="audit-text">Batch login — Morning shift started</div><div class="audit-user">18 workers authenticated · Zone 4B</div></div></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end .main -->
+
+<!-- ════ MODALS ════ -->
+
+<!-- Add User Modal -->
+<div class="modal-overlay" id="modal-add-user">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Add New User</div><button class="modal-close" onclick="closeModal('modal-add-user')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row"><div class="field"><label>First Name</label><input type="text" placeholder="James"/></div><div class="field"><label>Surname</label><input type="text" placeholder="Mokoena"/></div></div>
+      <div class="field"><label>Employee ID</label><input type="text" placeholder="MIN-0000"/><div class="field-hint">Format: MIN-XXXX</div></div>
+      <div class="form-row">
+        <div class="field"><label>Role</label><select><option>Miner</option><option>Supervisor</option><option>Safety Officer</option><option>Admin</option></select></div>
+        <div class="field"><label>Zone</label><select><option>Zone 4B</option><option>Tunnel 7</option><option>Zone 4B-South</option><option>Panel C4</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Shift</label><select><option>Morning</option><option>Afternoon</option><option>Night</option></select></div>
+        <div class="field"><label>Initial PIN</label><input type="password" placeholder="••••" maxlength="10"/></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-add-user')">Cancel</button>
+      <button class="btn btn-gold" onclick="addUser()">Create User</button>
+    </div>
+  </div>
+</div>
+
+<!-- Upload Doc Modal -->
+<div class="modal-overlay" id="modal-upload">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Upload Safety Document</div><button class="modal-close" onclick="closeModal('modal-upload')">✕</button></div>
+    <div class="modal-body">
+      <div class="field"><label>Document Title</label><input type="text" placeholder="e.g. Methane Emergency Protocol"/></div>
+      <div class="form-row">
+        <div class="field"><label>Category</label><select><option>Gas</option><option>Electrical</option><option>Structural</option><option>PPE</option><option>Emergency</option></select></div>
+        <div class="field"><label>Version</label><input type="text" placeholder="e.g. 2.0"/></div>
+      </div>
+      <div class="field"><label>File</label><input type="file" accept=".pdf,.doc,.docx"/><div class="field-hint">PDF or Word documents only</div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-upload')">Cancel</button>
+      <button class="btn btn-gold" onclick="uploadDoc()">Upload Document</button>
+    </div>
+  </div>
+</div>
+
+<!-- Send Message Modal -->
+<div class="modal-overlay" id="modal-send-msg">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Send Announcement</div><button class="modal-close" onclick="closeModal('modal-send-msg')">✕</button></div>
+    <div class="modal-body">
+      <div class="field"><label>To</label><select><option>All Workers</option><option>Morning Shift</option><option>Afternoon Shift</option><option>Night Shift</option><option>Supervisors</option></select></div>
+      <div class="field"><label>Subject</label><input type="text" placeholder="Announcement subject"/></div>
+      <div class="field"><label>Message</label><textarea rows="4" placeholder="Write your announcement..."></textarea></div>
+      <div class="field"><label>Priority</label><select><option>Normal</option><option>Urgent</option><option>Emergency</option></select></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-send-msg')">Cancel</button>
+      <button class="btn btn-gold" onclick="sendAnnouncement()">Send Now</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── Clock & Shift Detection ────────────────────────────────
+function getCurrentShift() {
+  const h = new Date().getHours();
+  if (h >= 6  && h < 14) return { type:'morning',   label:'Morning',   cls:'shift-morning',   start:6,  end:14 };
+  if (h >= 14 && h < 22) return { type:'afternoon', label:'Afternoon', cls:'shift-afternoon', start:14, end:22 };
+  return                         { type:'night',     label:'Night',     cls:'shift-night',     start:22, end:6  };
+}
+
+function getShiftProgress(shift) {
+  const now = new Date();
+  const cur = now.getHours() * 60 + now.getMinutes();
+  let start = shift.start * 60, end = shift.end * 60;
+  if (shift.type === 'night' && cur < 6 * 60) { start = (22 - 24) * 60; }
+  return Math.min(100, Math.max(0, Math.round((cur - start) / (end - start) * 100)));
+}
+
+function updateClock() {
+  const now   = new Date();
+  const pad   = n => n.toString().padStart(2, '0');
+  document.getElementById('admin-clock').textContent =
+    `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+  const shift = getCurrentShift();
+  const pill  = document.getElementById('shift-pill');
+  pill.textContent  = shift.label + ' Shift';
+  pill.className    = 'shift-pill ' + shift.cls;
+
+  // Update progress bars for each shift block
+  const mPct = shift.type === 'morning'   ? getShiftProgress(shift) : (new Date().getHours() >= 14 ? 100 : 0);
+  const aPct = shift.type === 'afternoon' ? getShiftProgress(shift) : (new Date().getHours() >= 22 ? 100 : 0);
+  const nPct = shift.type === 'night'     ? getShiftProgress(shift) : 0;
+
+  document.getElementById('prog-morning').style.width   = mPct + '%';
+  document.getElementById('prog-afternoon').style.width = aPct + '%';
+  document.getElementById('prog-night').style.width     = nPct + '%';
+
+  const h = now.getHours();
+  document.getElementById('aft-status').textContent   = (h >= 14 && h < 22) ? 'Active'  : (h >= 22 ? 'Complete' : 'Upcoming');
+  document.getElementById('night-status').textContent = (h >= 22 || h < 6)  ? 'Active'  : 'Upcoming';
+  document.getElementById('aft-status').style.color   = (h >= 14 && h < 22) ? 'var(--success)' : 'var(--text3)';
+  document.getElementById('night-status').style.color = (h >= 22 || h < 6)  ? 'var(--success)' : 'var(--text3)';
+}
+
+updateClock();
+setInterval(updateClock, 1000);
+
+// ── Navigation ─────────────────────────────────────────────
+const pageMeta = {
+  dashboard: ['Dashboard',       'Overview of your mining operation'],
+  users:     ['User Management', 'Create, edit and control access'],
+  data:      ['Data Management', 'Records, documents and hazards'],
+  process:   ['Process Control', 'Approvals, workflows and actions'],
+  reports:   ['Reports & Analytics', 'KPIs and performance data'],
+  comms:     ['Communications',  'Notifications and announcements'],
+  config:    ['Configuration',   'System settings and integrations'],
+  security:  ['Security & Access', 'Audit logs and RBAC'],
+};
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const items = document.querySelectorAll('.nav-item');
+  items.forEach(item => { if (item.getAttribute('onclick')?.includes(`'${id}'`)) item.classList.add('active'); });
+  const meta = pageMeta[id] || [id, ''];
+  document.getElementById('topbar-title').textContent = meta[0];
+  document.getElementById('topbar-sub').textContent   = meta[1];
+  // Close sidebar on mobile
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+// ── Modals ─────────────────────────────────────────────────
+function openModal(id)  { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); });
+});
+
+// ── Toast ──────────────────────────────────────────────────
+function toast(msg, type='') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className   = 'show' + (type ? ' toast-' + type : '');
+  setTimeout(() => el.className = '', 3000);
+}
+
+// ── Actions ────────────────────────────────────────────────
+function addUser()         { closeModal('modal-add-user'); toast('✅ User created successfully','success'); }
+function uploadDoc()       { closeModal('modal-upload');   toast('📄 Document uploaded','success'); }
+function sendAnnouncement(){ closeModal('modal-send-msg'); toast('📣 Announcement sent','success'); }
+function editUser(id)      { toast(`✏ Editing user ${id}`); }
+function resetPassword(id) { if(confirm(`Reset PIN for ${id}?`)) toast(`🔑 PIN reset for ${id}`,'success'); }
+function deleteUser(id)    { if(confirm(`Deactivate ${id}? They will lose access immediately.`)) toast(`User ${id} deactivated`,'danger'); }
+function resolveHazard(btn){ btn.closest('tr').querySelector('td:nth-child(3)').innerHTML='<span class="badge b-success">Resolved</span>'; toast('✅ Hazard marked resolved','success'); }
+
+function approveReq(btn) {
+  const row = btn.closest('tr');
+  row.querySelector('td:last-child').innerHTML = '<span class="badge b-success">Approved</span>';
+  const pending = document.querySelectorAll('.page#page-process table tbody tr td:last-child .btn-gold');
+  document.getElementById('pending-badge').textContent = pending.length;
+  toast('✅ Request approved','success');
+}
+function rejectReq(btn) {
+  const row = btn.closest('tr');
+  row.querySelector('td:last-child').innerHTML = '<span class="badge b-danger">Rejected</span>';
+  toast('Request rejected');
+}
+
+function emergencyAlert() {
+  if (confirm('🚨 This will send an EMERGENCY evacuation alert to ALL workers. Proceed?')) {
+    toast('🚨 EMERGENCY ALERT SENT — All workers notified','danger');
+  }
+}
+
+function confirmLogout() {
+  if (confirm('Log out of the admin panel?')) {
+    window.location.href = 'index.html';
+  }
+}
+
+function filterUsers(val) {
+  const rows = document.querySelectorAll('#users-tbody tr');
+  const search = (val || document.querySelector('.search-box input').value || '').toLowerCase();
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = text.includes(search) ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>
