@@ -180,6 +180,13 @@ tr:hover td{background:var(--surface)}
   .form-row{grid-template-columns:1fr}
 }
 </style>
+<script>
+(function(){
+  var emp = null;
+  try { emp = JSON.parse(sessionStorage.getItem('shiftai_emp') || 'null'); } catch(e){}
+  if (!emp || emp.role !== 'Admin') window.location.replace('index.html');
+})();
+</script>
 </head>
 <body>
 
@@ -814,9 +821,22 @@ function emergencyAlert() {
 
 function confirmLogout() {
   if (confirm('Log out of the admin panel?')) {
+    sessionStorage.removeItem('shiftai_emp');
+    sessionStorage.removeItem('shiftai_token');
     window.location.href = 'index.html';
   }
 }
+
+// Populate sidebar from session
+(function() {
+  var emp = null;
+  try { emp = JSON.parse(sessionStorage.getItem('shiftai_emp') || 'null'); } catch(e){}
+  if (!emp) return;
+  var initials = (emp.name || emp.emp_num || '??').split(' ').map(function(n){return n[0]||'';}).join('').toUpperCase().slice(0,2);
+  document.querySelector('.avatar').textContent      = initials;
+  document.querySelector('.user-name').textContent   = emp.name || emp.emp_num;
+  document.querySelector('.user-role').textContent   = emp.role  || 'Admin';
+})();
 
 function filterUsers(val) {
   const rows = document.querySelectorAll('#users-tbody tr');

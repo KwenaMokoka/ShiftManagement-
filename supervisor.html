@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>ShiftAI Admin Panel</title>
+<title>ShiftAI Supervisor Panel</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -180,6 +180,13 @@ tr:hover td{background:var(--surface)}
   .form-row{grid-template-columns:1fr}
 }
 </style>
+<script>
+(function(){
+  var emp = null;
+  try { emp = JSON.parse(sessionStorage.getItem('shiftai_emp') || 'null'); } catch(e){}
+  if (!emp || emp.role !== 'Supervisor') window.location.replace('index.html');
+})();
+</script>
 </head>
 <body>
 
@@ -187,7 +194,7 @@ tr:hover td{background:var(--surface)}
 <nav class="sidebar" id="sidebar">
   <div class="sidebar-logo">
     <div class="logo-mark">⛏ ShiftAI</div>
-    <div class="logo-sub">Admin Control Panel</div>
+    <div class="logo-sub">Supervisor Panel</div>
   </div>
   <div class="sidebar-user">
     <div class="avatar">KM</div>
@@ -212,7 +219,6 @@ tr:hover td{background:var(--surface)}
   <div class="nav-section">
     <div class="nav-label">System</div>
     <div class="nav-item" onclick="showPage('config')"><span class="nav-icon">🔧</span>Configuration</div>
-    <div class="nav-item" onclick="showPage('security')"><span class="nav-icon">🔐</span>Security & Access</div>
   </div>
 
   <div class="sidebar-bottom">
@@ -813,10 +819,23 @@ function emergencyAlert() {
 }
 
 function confirmLogout() {
-  if (confirm('Log out of the admin panel?')) {
+  if (confirm('Log out of the supervisor panel?')) {
+    sessionStorage.removeItem('shiftai_emp');
+    sessionStorage.removeItem('shiftai_token');
     window.location.href = 'index.html';
   }
 }
+
+// Populate sidebar from session
+(function() {
+  var emp = null;
+  try { emp = JSON.parse(sessionStorage.getItem('shiftai_emp') || 'null'); } catch(e){}
+  if (!emp) return;
+  var initials = (emp.name || emp.emp_num || '??').split(' ').map(function(n){return n[0]||'';}).join('').toUpperCase().slice(0,2);
+  document.querySelector('.avatar').textContent      = initials;
+  document.querySelector('.user-name').textContent   = emp.name || emp.emp_num;
+  document.querySelector('.user-role').textContent   = emp.role  || 'Admin';
+})();
 
 function filterUsers(val) {
   const rows = document.querySelectorAll('#users-tbody tr');

@@ -1,0 +1,215 @@
+{
+  "site": {
+    "name": "Witwatersrand Deep Level",
+    "manager": "Kwena Mokoena",
+    "emergency_contact": "+27 11 000 0000"
+  },
+
+  "shifts": {
+    "morning":   { "label": "Morning",   "start": "06:00", "end": "14:00" },
+    "afternoon": { "label": "Afternoon", "start": "14:00", "end": "22:00" },
+    "night":     { "label": "Night",     "start": "22:00", "end": "06:00" }
+  },
+
+  "thresholds": {
+    "methane_alert_pct": 1.5,
+    "overdue_task_minutes": 30,
+    "max_consecutive_shifts": 5
+  },
+
+  "integrations": {
+    "firebase_push": true,
+    "email_reports": true,
+    "sms_alerts": false,
+    "ai_report_generation": true
+  },
+
+  "zones": [
+    { "zone_id": "Z4B",   "zone_name": "Zone 4B",       "level": "Level 4", "site_name": "Witwatersrand Deep Level" },
+    { "zone_id": "T7",    "zone_name": "Tunnel 7",       "level": "Level 4", "site_name": "Witwatersrand Deep Level" },
+    { "zone_id": "Z4BS",  "zone_name": "Zone 4B-South",  "level": "Level 4", "site_name": "Witwatersrand Deep Level" },
+    { "zone_id": "PC4",   "zone_name": "Panel C4",        "level": "Level 3", "site_name": "Witwatersrand Deep Level" }
+  ],
+
+  "employees": [
+    {
+      "emp_num": "MIN-4821",
+      "name": "James",
+      "surname": "Mokoena",
+      "email": "jmokoena@shiftai.co.za",
+      "role": "Miner",
+      "zone_id": "Z4B",
+      "shift": "morning",
+      "pin": "1234",
+      "status": "active",
+      "fcm_token": null
+    },
+    {
+      "emp_num": "MIN-3301",
+      "name": "Thabo",
+      "surname": "Dlamini",
+      "email": "tdlamini@shiftai.co.za",
+      "role": "Supervisor",
+      "zone_id": "Z4B",
+      "shift": "morning",
+      "pin": "1234",
+      "status": "active",
+      "fcm_token": null
+    },
+    {
+      "emp_num": "MIN-5512",
+      "name": "Lerato",
+      "surname": "Nkosi",
+      "email": "lnkosi@shiftai.co.za",
+      "role": "Safety Officer",
+      "zone_id": "T7",
+      "shift": "afternoon",
+      "pin": "1234",
+      "status": "active",
+      "fcm_token": null
+    },
+    {
+      "emp_num": "MIN-6620",
+      "name": "Sipho",
+      "surname": "Zulu",
+      "email": "szulu@shiftai.co.za",
+      "role": "Miner",
+      "zone_id": "Z4BS",
+      "shift": "night",
+      "pin": "1234",
+      "status": "on_leave",
+      "fcm_token": null
+    },
+    {
+      "emp_num": "ADMIN-01",
+      "name": "Kwena",
+      "surname": "Mokoena",
+      "email": "admin@shiftai.co.za",
+      "role": "Admin",
+      "zone_id": "Z4B",
+      "shift": "morning",
+      "pin": "admin",
+      "status": "active",
+      "fcm_token": null
+    }
+  ],
+
+  "tasks": [
+    { "task_id": "T001", "title": "Pre-shift safety walkthrough",  "category": "Safety",      "priority": "critical", "duration_min": 30, "shift": "morning",   "zone_id": "Z4B"  },
+    { "task_id": "T002", "title": "Conveyor belt inspection",       "category": "Maintenance", "priority": "urgent",   "duration_min": 45, "shift": "morning",   "zone_id": "Z4B"  },
+    { "task_id": "T003", "title": "Gas monitor calibration",        "category": "Safety",      "priority": "critical", "duration_min": 20, "shift": "morning",   "zone_id": "Z4B"  },
+    { "task_id": "T004", "title": "Ventilation check — Tunnel 7",  "category": "Safety",      "priority": "urgent",   "duration_min": 30, "shift": "morning",   "zone_id": "T7"   },
+    { "task_id": "T005", "title": "Equipment sign-off (Drill rig)", "category": "Maintenance", "priority": "normal",   "duration_min": 20, "shift": "morning",   "zone_id": "Z4B"  },
+    { "task_id": "T006", "title": "Submit end-of-shift report",     "category": "Admin",       "priority": "normal",   "duration_min": 15, "shift": "morning",   "zone_id": "Z4B"  },
+    { "task_id": "T007", "title": "Afternoon safety briefing",      "category": "Safety",      "priority": "critical", "duration_min": 30, "shift": "afternoon", "zone_id": "Z4B"  },
+    { "task_id": "T008", "title": "Panel C4 electrical inspection", "category": "Electrical",  "priority": "urgent",   "duration_min": 45, "shift": "afternoon", "zone_id": "PC4"  },
+    { "task_id": "T009", "title": "Night shift zone sweep",         "category": "Safety",      "priority": "critical", "duration_min": 60, "shift": "night",     "zone_id": "Z4BS" }
+  ],
+
+  "hazards": [
+    {
+      "hazard_id": "H001",
+      "zone_id": "T7",
+      "type": "Gas",
+      "severity": "High",
+      "description": "Elevated methane levels in Tunnel 7. PPE required before entry.",
+      "reported_by": "MIN-5512",
+      "reported_at": "2026-05-03T08:15:00",
+      "active": true
+    },
+    {
+      "hazard_id": "H002",
+      "zone_id": "Z4B",
+      "type": "Electrical",
+      "severity": "High",
+      "description": "Fault on Panel C4, Zone 4B. Tagged out — do not operate.",
+      "reported_by": "MIN-3301",
+      "reported_at": "2026-05-03T06:40:00",
+      "active": true
+    },
+    {
+      "hazard_id": "H003",
+      "zone_id": "Z4BS",
+      "type": "Structural",
+      "severity": "Medium",
+      "description": "Loose hanging wall section, Zone 4B-South. Area barricaded.",
+      "reported_by": "MIN-5512",
+      "reported_at": "2026-05-02T14:00:00",
+      "active": true
+    }
+  ],
+
+  "safety_documents": [
+    {
+      "doc_id": "D001",
+      "title": "Methane Gas Emergency Protocol",
+      "category": "Gas",
+      "version": "2.0",
+      "uploaded_by": "MIN-5512",
+      "uploaded_at": "2025-03-10",
+      "file_url": "/docs/methane-protocol-v2.pdf",
+      "is_active": true
+    },
+    {
+      "doc_id": "D002",
+      "title": "Electrical Isolation & Lockout",
+      "category": "Electrical",
+      "version": "1.0",
+      "uploaded_by": "MIN-5512",
+      "uploaded_at": "2025-01-22",
+      "file_url": "/docs/electrical-lockout-v1.pdf",
+      "is_active": true
+    },
+    {
+      "doc_id": "D003",
+      "title": "Hanging Wall Risk Guide",
+      "category": "Structural",
+      "version": "1.0",
+      "uploaded_by": "MIN-5512",
+      "uploaded_at": "2025-02-05",
+      "file_url": "/docs/hanging-wall-v1.pdf",
+      "is_active": true
+    },
+    {
+      "doc_id": "D004",
+      "title": "PPE Requirements — Underground",
+      "category": "PPE",
+      "version": "3.0",
+      "uploaded_by": "MIN-3301",
+      "uploaded_at": "2025-04-01",
+      "file_url": "/docs/ppe-requirements-v3.pdf",
+      "is_active": true
+    }
+  ],
+
+  "notifications": [
+    {
+      "notif_id": "N001",
+      "emp_num": "MIN-4821",
+      "type": "hazard_alert",
+      "title": "Safety Alert — Tunnel 7",
+      "message": "Methane spike detected. Check gas monitor before entering Tunnel 7.",
+      "sent_at": "2026-05-03T20:58:00",
+      "is_read": false
+    },
+    {
+      "notif_id": "N002",
+      "emp_num": "MIN-4821",
+      "type": "task_reminder",
+      "title": "Task Overdue",
+      "message": "Gas monitor calibration is 30 minutes overdue.",
+      "sent_at": "2026-05-03T09:00:00",
+      "is_read": true
+    }
+  ],
+
+  "audit_log": [
+    { "time": "21:14:03", "type": "success", "text": "Shift report submitted",                    "user": "MIN-4821 J. Mokoena · IP 192.168.1.45 · Zone 4B" },
+    { "time": "21:02:11", "type": "gold",    "text": "Task marked complete — Conveyor belt inspection", "user": "MIN-4821 J. Mokoena · Voice input" },
+    { "time": "20:58:44", "type": "danger",  "text": "New HIGH hazard reported — Gas · Tunnel 7", "user": "MIN-5512 L. Nkosi · 18 workers notified" },
+    { "time": "20:30:00", "type": "info",    "text": "User login",                                 "user": "MIN-3301 T. Dlamini · IP 192.168.1.12 · Supervisor" },
+    { "time": "18:42:19", "type": "success", "text": "Safety document uploaded — PPE Requirements v3", "user": "MIN-3301 T. Dlamini · Admin action" },
+    { "time": "14:05:00", "type": "warn",    "text": "Shift handover completed — Morning to Afternoon", "user": "Zone 4B · 18 workers handed over" },
+    { "time": "06:01:34", "type": "info",    "text": "Batch login — Morning shift started",        "user": "18 workers authenticated · Zone 4B" }
+  ]
+}

@@ -1,98 +1,84 @@
 <?php
 // ============================================================
 // SMART SHIFT ASSISTANT — AI Chat
-// File: api/chat.php
-// Method: POST
+// File: api/chat.php   |   POST   |   No database
+// Data source: ../config.json
 // Body: { "message": "What are today's hazards?" }
 // ============================================================
 
-// ── Safe helper loading ──────────────────────────────────────
-$helpers = __DIR__ . '/../includes/helpers.php';
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
-if (!file_exists($helpers)) {
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit; }
+if ($_SERVER['REQUEST_METHOD'] !== 'POST')    { http_response_code(405); echo json_encode(['error' => 'Method not allowed']); exit; }
+
+// ── Load config ──────────────────────────────────────────────
+$config_path = __DIR__ . '/../config.json';
+
+if (!file_exists($config_path)) {
     http_response_code(500);
-    header('Content-Type: application/json');
-    echo json_encode([
-        'error' => 'Server configuration error: helpers.php not found'
-    ]);
+    echo json_encode(['error' => 'config.json not found']);
     exit;
 }
 
-require_once $helpers;
+$cfg = json_decode(file_get_contents($config_path), true);
 
-setHeaders();
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    respondError('Method not allowed', 405);
+// ── Auth (JWT decode — simple base64 payload read) ──────────
+function getAuthUser($cfg) {
+    $header = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+    if (!$header) return null;
+    $token  = str_replace('Bearer ', '', $header);
+    $parts  = explode('.', $token);
+    if (count($parts) !== 3) return null;
+    $payload = json_decode(base64_decode(str_pad(strtr($parts[1], '-_', '+/'), strlen($parts[1]) % 4 == 0 ? strlen($parts[1]) : strlen($parts[1]) + 4 - strlen($parts[1]) % 4, '=', STR_PAD_RIGHT)), true);
+    if (!$payload || !isset($payload['emp_num'])) return null;
+    return $payload;
 }
 
-$auth    = requireAuth();
-$emp_num = $auth['emp_num'];
-$db      = getDB();
-$body    = getBody();
+$user = getAuthUser($cfg);
+if (!$user) {
+    http_response_code(401);
+    echo json_encode(['error' => 'Unauthorized']);
+    exit;
+}
 
-// ── Validate input ───────────────────────────────────────────
-$message = preg_replace('/\s+/', ' ', trim($body['message'] ?? ''));
+// ── Parse request ────────────────────────────────────────────
+$body    = json_decode(file_get_contents('php://input'), true);
+$message = trim(preg_replace('/\s+/', ' ', $body['message'] ?? ''));
 
 if (!$message) {
-    respondError('message is required');
+    http_response_code(400);
+    echo json_encode(['error' => 'message is required']);
+    exit;
 }
 
 if (strlen($message) > 500) {
-    respondError('message too long', 400);
+    http_response_code(400);
+    echo json_encode(['error' => 'message too long']);
+    exit;
 }
 
-// ── Load hazards for worker zone ─────────────────────────────
-$hazards = $db->prepare("
-    SELECT type, severity, description
-    FROM hazards
-    WHERE zone_id = :zone
-      AND active = 1
-");
-$hazards->execute([':zone' => $auth['zone_id']]);
-$hazardRows = $hazards->fetchAll(PDO::FETCH_ASSOC);
+// ── Load data from config ────────────────────────────────────
+$zone_id  = $user['zone_id'] ?? '';
+$emp_num  = $user['emp_num'] ?? '';
+$emp_role = $user['role']    ?? '';
 
-// ── Load tasks (latest log only per task) ────────────────────
-$tasks = $db->prepare("
-    SELECT
-        t.task_id,
-        t.title,
-        t.priority,
-        tl.status AS log_status
-    FROM tasks t
-    JOIN shifts s
-        ON s.shift_id = t.shift_id
-    LEFT JOIN task_logs tl
-        ON tl.log_id = (
-            SELECT tl2.log_id
-            FROM task_logs tl2
-            WHERE tl2.task_id = t.task_id
-              AND tl2.emp_num = :emp
-            ORDER BY tl2.log_id DESC
-            LIMIT 1
-        )
-    WHERE s.emp_num = :emp2
-      AND s.status = 'active'
-");
-$tasks->execute([
-    ':emp'  => $emp_num,
-    ':emp2' => $emp_num
-]);
-$taskRows = $tasks->fetchAll(PDO::FETCH_ASSOC);
+$hazards = array_values(array_filter($cfg['hazards'] ?? [], function($h) use ($zone_id) {
+    return $h['zone_id'] === $zone_id && $h['active'];
+}));
 
-// ── Load safety documents ────────────────────────────────────
-$docs = $db->prepare("
-    SELECT title, category
-    FROM safety_documents
-    WHERE is_active = 1
-");
-$docs->execute();
-$docRows = $docs->fetchAll(PDO::FETCH_ASSOC);
+$tasks = array_values(array_filter($cfg['tasks'] ?? [], function($t) use ($zone_id) {
+    return $t['zone_id'] === $zone_id;
+}));
 
-// ── Build response ───────────────────────────────────────────
-$reply = buildReply($message, $hazardRows, $taskRows, $docRows);
+$docs = array_values(array_filter($cfg['safety_documents'] ?? [], function($d) {
+    return $d['is_active'];
+}));
 
-respond(['reply' => $reply]);
+// ── Build reply ──────────────────────────────────────────────
+$reply = buildReply($message, $hazards, $tasks, $docs);
+echo json_encode(['reply' => $reply]);
 
 // ============================================================
 // RULE-BASED CHAT ENGINE
@@ -102,67 +88,34 @@ function buildReply($msg, $hazards, $tasks, $docs)
 {
     $m = strtolower($msg);
 
-    // ── Hazard query ─────────────────────────────────────────
+    // Hazard query
     if (containsAny($m, ['hazard', 'danger', 'risk', 'unsafe'])) {
-        if (!$hazards) {
+        if (empty($hazards)) {
             return 'No active hazards in your zone right now. Stay alert.';
         }
-
         $lines = ["⚠ Active hazards in your zone:\n"];
-
         foreach ($hazards as $i => $h) {
-            $lines[] = ($i + 1) . '. ' .
-                strtoupper($h['severity']) .
-                ' — ' .
-                $h['description'];
+            $lines[] = ($i + 1) . '. ' . strtoupper($h['severity']) . ' — ' . $h['description'];
         }
-
-        $critical = array_filter($hazards, function ($h) {
-            return strtolower($h['severity']) === 'critical';
-        });
-
-        if ($critical) {
-            $lines[] = "\nCritical hazard detected — notify your supervisor immediately.";
-        }
-
+        $critical = array_filter($hazards, fn($h) => strtolower($h['severity']) === 'critical');
+        if ($critical) $lines[] = "\nCritical hazard detected — notify your supervisor immediately.";
         $lines[] = "\nAlways check your gas monitor before entering any tunnel.";
-
         return implode("\n", $lines);
     }
 
-    // ── Priority / next task ─────────────────────────────────
-    if (containsAny($m, ['first', 'start', 'priority', 'next'])) {
-
-        $pending = array_filter($tasks, function ($t) {
-            return ($t['log_status'] ?? '') !== 'completed';
-        });
-
-        usort($pending, function ($a, $b) {
-            $priorityCompare = priorityScore($b['priority']) - priorityScore($a['priority']);
-
-            if ($priorityCompare !== 0) {
-                return $priorityCompare;
-            }
-
-            return strcmp($a['title'], $b['title']);
-        });
-
-        if (!$pending) {
-            return 'All tasks are completed. Great work on the shift!';
-        }
-
+    // Priority / next task
+    if (containsAny($m, ['first', 'start', 'priority', 'next', 'what should'])) {
+        $pending = array_filter($tasks, fn($t) => ($t['log_status'] ?? '') !== 'completed');
+        usort($pending, fn($a, $b) => priorityScore($b['priority']) - priorityScore($a['priority']));
+        if (empty($pending)) return 'All tasks are completed. Great work!';
         $lines = ["Based on priority, here's what to do next:\n"];
-
         foreach (array_slice($pending, 0, 3) as $i => $t) {
-            $lines[] = ($i + 1) . '. ' .
-                $t['title'] .
-                ' [' . strtoupper($t['priority']) . ']';
+            $lines[] = ($i + 1) . '. ' . $t['title'] . ' [' . strtoupper($t['priority']) . ']';
         }
-
         return implode("\n", $lines);
     }
 
-    // ── Methane / gas protocol ───────────────────────────────
+    // Methane / gas protocol
     if (containsAny($m, ['methane', 'gas', 'gas protocol'])) {
         return "Methane Safety Protocol:\n\n" .
             "• Reading <1%: Normal operation\n" .
@@ -171,75 +124,32 @@ function buildReply($msg, $hazards, $tasks, $docs)
             "PPE is mandatory before entering Tunnel 7. Ensure gas monitor is calibrated.";
     }
 
-    // ── Task log / completion ────────────────────────────────
-    if (containsAny($m, ['log', 'complete', 'completed', 'done', 'finish'])) {
-        return "✓ Understood. Use the Tasks tab to mark specific tasks complete, or type the task name and I'll log it for you.";
-    }
-
-    // ── Progress ─────────────────────────────────────────────
-    if (containsAny($m, ['progress', 'how many', 'status'])) {
-
-        $done = count(array_filter($tasks, function ($t) {
-            return ($t['log_status'] ?? '') === 'completed';
-        }));
-
+    // Progress
+    if (containsAny($m, ['progress', 'how many', 'status', 'how far'])) {
+        $done  = count(array_filter($tasks, fn($t) => ($t['log_status'] ?? '') === 'completed'));
         $total = count($tasks);
-
         return "Shift progress: {$done} of {$total} tasks completed.\n" .
-            ($done < $total
-                ? "Keep going — you're doing well!"
-                : "All tasks done. Ready for handover.");
+            ($done < $total ? 'Keep going!' : 'All tasks done — ready for handover.');
     }
 
-    // ── Documents / procedures ───────────────────────────────
-    if (containsAny($m, ['document', 'procedure', 'manual', 'safety protocol'])) {
-
-        if (!$docs) {
-            return 'No safety documents are available yet.';
-        }
-
-        $titles = array_map(function ($d) {
-            return '• ' . $d['title'];
-        }, $docs);
-
-        return "Available safety documents:\n\n" .
-            implode("\n", $titles) .
-            "\n\nAsk me about any specific procedure.";
+    // Documents
+    if (containsAny($m, ['document', 'procedure', 'manual', 'protocol', 'guide'])) {
+        if (empty($docs)) return 'No safety documents available yet.';
+        $titles = array_map(fn($d) => '• ' . $d['title'], $docs);
+        return "Available safety documents:\n\n" . implode("\n", $titles) . "\n\nAsk me about any specific procedure.";
     }
 
-    // ── Default fallback ─────────────────────────────────────
-    return "I can help with:\n" .
-        "• Today's hazards\n" .
-        "• Task priorities\n" .
-        "• Safety protocols\n" .
-        "• Shift progress\n\n" .
-        "What would you like to know?";
+    // Default
+    return "I can help with:\n• Today's hazards\n• Task priorities\n• Safety protocols\n• Shift progress\n\nWhat would you like to know?";
 }
-
-// ============================================================
-// HELPERS
-// ============================================================
 
 function containsAny($text, array $keywords)
 {
-    foreach ($keywords as $keyword) {
-        if (strpos($text, $keyword) !== false) {
-            return true;
-        }
-    }
+    foreach ($keywords as $kw) { if (strpos($text, $kw) !== false) return true; }
     return false;
 }
 
 function priorityScore($p)
 {
-    switch (strtolower($p)) {
-        case 'critical':
-            return 4;
-        case 'urgent':
-            return 3;
-        case 'normal':
-            return 2;
-        default:
-            return 1;
-    }
+    return match(strtolower($p)) { 'critical' => 4, 'urgent' => 3, 'normal' => 2, default => 1 };
 }

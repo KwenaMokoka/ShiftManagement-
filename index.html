@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ShiftAI — Smart Shift Assistant</title>
+<title>ShiftAI &#8212; Smart Shift Assistant</title>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600&family=Barlow:wght@400;500&display=swap');
@@ -16,6 +16,7 @@
   --danger:#E24B4A;--danger-lt:#FCEBEB;
   --success:#3B6D11;--success-lt:#EAF3DE;
   --warn:#BA7517;--warn-lt:#FAEEDA;
+  --info:#1A6FC4;--info-lt:#E6F1FB;
   --text:#1A1A1A;--text2:#5F5E5A;--text3:#888780;
   --border:rgba(0,0,0,0.1);
   --r:10px;
@@ -28,21 +29,26 @@ button,input,textarea{font-family:'Barlow',sans-serif}
 .content{padding:14px;display:flex;flex-direction:column;gap:12px}
 .card{background:#fff;border:.5px solid var(--border);border-radius:var(--r);padding:14px}
 .card-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px}
-.badge{display:inline-flex;font-size:11px;padding:3px 8px;border-radius:20px}
+
+.badge{display:inline-flex;font-size:11px;padding:3px 8px;border-radius:20px;font-weight:500;white-space:nowrap}
 .badge-danger{background:var(--danger-lt);color:var(--danger)}
 .badge-warn{background:var(--warn-lt);color:var(--warn)}
 .badge-success{background:var(--success-lt);color:var(--success)}
-.badge-info{background:#E6F1FB;color:#185FA5}
+.badge-info{background:var(--info-lt);color:var(--info)}
+.badge-gray{background:var(--surface2);color:var(--text3)}
 
 .progress-bar{height:5px;background:var(--surface2);border-radius:3px;overflow:hidden}
 .progress-fill{height:100%;background:var(--gold);transition:width .3s}
 
 .primary-btn{
   width:100%;padding:12px;border:none;border-radius:var(--r);
-  background:var(--coal);color:#fff;cursor:pointer
+  background:var(--coal);color:#fff;cursor:pointer;font-size:14px;font-weight:500;
+  transition:opacity .12s
 }
+.primary-btn:active{opacity:.85}
 .primary-btn.gold{background:var(--gold);color:var(--coal)}
 
+/* ── Login ─────────────────────────────── */
 .login-wrap{
   min-height:100vh;background:var(--coal);display:flex;
   flex-direction:column;align-items:center;justify-content:center;
@@ -50,19 +56,24 @@ button,input,textarea{font-family:'Barlow',sans-serif}
 }
 .login-logo{
   font-family:'Barlow Condensed',sans-serif;
-  font-size:32px;font-weight:600;color:var(--gold)
+  font-size:36px;font-weight:600;color:var(--gold)
 }
-.login-sub{font-size:14px;color:#888;text-align:center}
+.login-sub{font-size:14px;color:#888;text-align:center;line-height:1.5}
 .login-card{
-  background:#fff;border-radius:14px;padding:24px;width:100%;
-  max-width:340px;display:flex;flex-direction:column;gap:14px
+  background:#fff;border-radius:14px;padding:28px;width:100%;
+  max-width:340px;display:flex;flex-direction:column;gap:16px
 }
 .login-field{display:flex;flex-direction:column;gap:5px}
+.login-field label{font-size:12px;font-weight:500;color:var(--text2)}
 .login-field input{
-  padding:10px 12px;border:.5px solid var(--border);
-  border-radius:7px;font-size:14px
+  padding:11px 12px;border:.5px solid var(--border);
+  border-radius:7px;font-size:14px;outline:none;
+  transition:border-color .15s
 }
+.login-field input:focus{border-color:var(--gold)}
+.login-error{font-size:12px;color:var(--danger);text-align:center;display:none}
 
+/* ── App shell ─────────────────────────── */
 .shift-header{
   background:linear-gradient(135deg,var(--coal) 70%,var(--coal3));
   padding:20px 16px 16px;color:#fff
@@ -73,162 +84,234 @@ button,input,textarea{font-family:'Barlow',sans-serif}
 }
 .shift-info{font-size:13px;color:#aaa;margin-top:2px}
 
+.nav-bar{display:flex;background:#fff;border-bottom:.5px solid var(--border)}
 .nav-btn{
   flex:1;padding:12px 4px;border:none;background:#fff;
-  cursor:pointer;color:#666
+  cursor:pointer;color:#666;font-size:12px;font-family:'Barlow',sans-serif;
+  transition:color .12s
 }
-.nav-btn.active{color:var(--gold)}
+.nav-btn.active{color:var(--gold);font-weight:500}
 
+/* ── KPI grid ──────────────────────────── */
+.kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.kpi-card{
+  background:#fff;border:.5px solid var(--border);
+  border-radius:var(--r);padding:12px;
+  border-top:3px solid transparent
+}
+.kpi-card.gold{border-top-color:var(--gold)}
+.kpi-card.danger{border-top-color:var(--danger)}
+.kpi-card.success{border-top-color:var(--success)}
+.kpi-card.info{border-top-color:var(--info)}
+.kpi-val{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:600;color:var(--text);line-height:1}
+.kpi-lbl{font-size:11px;color:var(--text3);margin-top:3px}
+
+/* ── AI briefing ───────────────────────── */
+.ai-box{background:var(--coal);color:#fff;padding:14px;border-radius:var(--r)}
+.ai-label{font-size:11px;color:#888;margin-bottom:6px;letter-spacing:.5px;text-transform:uppercase}
+.ai-text{font-size:13px;line-height:1.6;color:#E0DED8}
+
+/* ── Task rows ─────────────────────────── */
 .task-row{
   display:flex;align-items:flex-start;gap:10px;
   padding:10px 0;border-bottom:.5px solid var(--border)
 }
 .task-row:last-child{border-bottom:none}
 .task-check{
-  width:20px;height:20px;border-radius:5px;border:1px solid var(--border);
-  cursor:pointer;display:flex;align-items:center;justify-content:center
+  width:20px;height:20px;border-radius:5px;border:1.5px solid var(--border);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all .12s
 }
 .task-check.done{background:var(--success);border-color:var(--success);color:#fff}
 .task-check.done::after{content:'✓';font-size:12px}
 .task-text.done{text-decoration:line-through;color:var(--text3)}
-.task-meta{font-size:11px;color:var(--text3)}
+.task-meta{font-size:11px;color:var(--text3);margin-top:2px}
 
-.ai-box{background:var(--coal);color:#fff;padding:14px;border-radius:var(--r)}
-.ai-label{font-size:11px;color:#888;margin-bottom:6px}
-.ai-text{font-size:13px;line-height:1.6;color:#E0DED8}
+/* ── Hazard item ───────────────────────── */
+.hazard-item{
+  display:flex;gap:10px;align-items:flex-start;
+  padding:9px 0;border-bottom:.5px solid var(--border)
+}
+.hazard-item:last-child{border-bottom:none}
 
-.chat-wrap{display:flex;flex-direction:column;flex:1;overflow-y:auto;padding:14px}
+/* ── Notification item ─────────────────── */
+.notif-item{
+  display:flex;gap:10px;padding:9px 0;
+  border-bottom:.5px solid var(--border);align-items:flex-start
+}
+.notif-item:last-child{border-bottom:none}
+.notif-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+
+/* ── Chat ──────────────────────────────── */
+.chat-wrap{display:flex;flex-direction:column;flex:1;overflow-y:auto;padding:14px;gap:8px}
 .msg-ai,.msg-user{
   padding:10px 12px;font-size:13px;line-height:1.5;
-  max-width:88%;margin-bottom:8px;white-space:pre-line
+  max-width:88%;white-space:pre-line
 }
 .msg-ai{background:var(--coal2);color:#E0DED8;border-radius:0 10px 10px 10px}
 .msg-user{background:var(--gold);color:var(--coal);margin-left:auto;border-radius:10px 0 10px 10px}
-
 .chat-input-row{
   padding:10px 14px;background:#fff;border-top:.5px solid var(--border);
   display:flex;gap:8px;align-items:center
 }
 .chat-input{
   flex:1;padding:9px 12px;border:.5px solid var(--border);
-  border-radius:20px;background:var(--surface);outline:none
+  border-radius:20px;background:var(--surface);outline:none;font-size:13px
 }
 .send-btn{
   width:36px;height:36px;border-radius:50%;background:var(--coal);
-  color:#fff;border:none;cursor:pointer
+  color:#fff;border:none;cursor:pointer;font-size:16px
 }
-
-.chip-row{display:flex;gap:6px;flex-wrap:wrap}
+.chip-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
 .chip{
   font-size:11px;padding:4px 10px;border-radius:20px;
-  border:.5px solid var(--border);background:#fff;cursor:pointer
+  border:.5px solid var(--border);background:#fff;cursor:pointer;
+  transition:background .12s
 }
+.chip:active{background:var(--surface2)}
 
+/* ── Voice ─────────────────────────────── */
 .voice-btn{
   width:36px;height:36px;border-radius:50%;
   background:var(--coal);color:#fff;border:none;
   display:flex;align-items:center;justify-content:center;
-  cursor:pointer;position:relative;flex-shrink:0
+  cursor:pointer;position:relative;flex-shrink:0;font-size:16px
 }
 .voice-btn.recording{background:var(--danger)}
-.voice-pulse{
-  position:absolute;inset:0;border-radius:50%;
-  background:var(--danger);opacity:.3;display:none
-}
-.voice-btn.recording .voice-pulse{
-  display:block;animation:pulse 1s infinite
-}
-@keyframes pulse{
-  0%{transform:scale(1);opacity:.3}
-  100%{transform:scale(1.5);opacity:0}
-}
+.voice-pulse{position:absolute;inset:0;border-radius:50%;background:var(--danger);opacity:.3;display:none}
+.voice-btn.recording .voice-pulse{display:block;animation:pulse 1s infinite}
+@keyframes pulse{0%{transform:scale(1);opacity:.3}100%{transform:scale(1.5);opacity:0}}
 </style>
 </head>
 <body>
 
+<!-- ════ LOGIN SCREEN ════ -->
 <div id="login-screen" class="login-wrap">
-  <div class="login-logo">⛏ ShiftAI</div>
-  <div class="login-sub">Smart Shift Assistant — Mining Division</div>
+  <div class="login-logo">&#9935; ShiftAI</div>
+  <div class="login-sub">Smart Shift Assistant<br/>Mining Division</div>
 
   <div class="login-card">
     <div class="login-field">
       <label>Employee ID</label>
-      <input id="emp-id" value="MIN-4821" />
+      <input id="emp-id" placeholder="MIN-0000" autocomplete="username" />
     </div>
-
     <div class="login-field">
       <label>PIN</label>
-      <input id="emp-pin" type="password" value="1234" />
+      <input id="emp-pin" type="password" placeholder="&#8226;&#8226;&#8226;&#8226;" autocomplete="current-password" />
     </div>
-
+    <div class="login-error" id="login-error"></div>
     <button class="primary-btn gold" onclick="doLogin()">Start Shift</button>
   </div>
 </div>
 
+<!-- ════ WORKER APP ════ -->
 <div id="app" style="display:none;flex-direction:column;min-height:100vh">
 
   <div class="shift-header">
-    <div style="display:flex;justify-content:space-between">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
       <div>
-        <div class="shift-title">Morning Shift</div>
-        <div class="shift-info">J. Mokoena · MIN-4821 · Level 4B</div>
+        <div class="shift-title" id="shift-title">Morning Shift</div>
+        <div class="shift-info" id="shift-info">Loading...</div>
       </div>
-      <div id="clock-disp"></div>
+      <div id="clock-disp" style="font-family:monospace;font-size:14px;color:var(--gold);margin-top:4px"></div>
     </div>
-
     <div class="progress-bar" style="margin-top:12px">
       <div id="shift-progress" class="progress-fill" style="width:0%"></div>
     </div>
-
-    <div id="progress-label" style="font-size:11px;color:#888;margin-top:4px">
-      0 of 6 tasks complete
-    </div>
+    <div id="progress-label" style="font-size:11px;color:#888;margin-top:4px">0 of 0 tasks complete</div>
   </div>
 
-  <div style="display:flex;background:#fff;border-bottom:.5px solid var(--border)">
+  <div class="nav-bar">
     <button id="tab-dashboard" class="nav-btn active" onclick="switchTab('dashboard')">Dashboard</button>
-    <button id="tab-tasks" class="nav-btn" onclick="switchTab('tasks')">Tasks</button>
-    <button id="tab-ai" class="nav-btn" onclick="switchTab('ai')">AI Chat</button>
-    <button id="tab-report" class="nav-btn" onclick="switchTab('report')">Report</button>
+    <button id="tab-tasks"     class="nav-btn"        onclick="switchTab('tasks')">Tasks</button>
+    <button id="tab-ai"        class="nav-btn"        onclick="switchTab('ai')">AI Chat</button>
+    <button id="tab-report"    class="nav-btn"        onclick="switchTab('report')">Report</button>
   </div>
 
-  <!-- DASHBOARD -->
+  <!-- DASHBOARD TAB -->
   <div id="tab-content-dashboard" class="content">
-    <div class="ai-box">
-      <div class="ai-label">AI Shift Briefing</div>
-      <div class="ai-text">
-        Good morning. You have 6 tasks today in Zone 4B.
+
+    <div class="kpi-grid">
+      <div class="kpi-card gold">
+        <div class="kpi-val" id="kpi-tasks">0/0</div>
+        <div class="kpi-lbl">Tasks Completed</div>
+      </div>
+      <div class="kpi-card danger">
+        <div class="kpi-val" id="kpi-hazards">&#8212;</div>
+        <div class="kpi-lbl">Active Hazards</div>
+      </div>
+      <div class="kpi-card success">
+        <div class="kpi-val" id="kpi-shift-pct">0%</div>
+        <div class="kpi-lbl">Shift Progress</div>
+      </div>
+      <div class="kpi-card info">
+        <div class="kpi-val" id="kpi-notifs">0</div>
+        <div class="kpi-lbl">Notifications</div>
       </div>
     </div>
+
+    <div class="ai-box">
+      <div class="ai-label">AI Shift Briefing</div>
+      <div class="ai-text" id="ai-briefing-text">Loading your shift briefing...</div>
+    </div>
+
+    <div class="card" id="hazards-section" style="display:none">
+      <div class="card-label">Active Hazards in Your Zone</div>
+      <div id="hazard-list"></div>
+    </div>
+
+    <div class="card" id="notif-section" style="display:none">
+      <div class="card-label">Notifications</div>
+      <div id="notif-list"></div>
+    </div>
+
   </div>
 
-  <!-- TASKS -->
+  <!-- TASKS TAB -->
   <div id="tab-content-tasks" class="content" style="display:none">
     <div class="card">
-      <div class="card-label">Today's Tasks</div>
-
+      <div class="card-label">Today&#39;s Tasks</div>
       <div id="task-list">
         <div class="task-row" id="task-0">
           <div class="task-check" onclick="toggleTask(0)"></div>
           <div>
             <div class="task-text">Pre-shift safety walkthrough</div>
-            <div class="task-meta">Safety · 30 min</div>
+            <div class="task-meta">Safety &#183; 30 min</div>
           </div>
         </div>
-
         <div class="task-row" id="task-1">
           <div class="task-check" onclick="toggleTask(1)"></div>
           <div>
             <div class="task-text">Conveyor belt inspection</div>
-            <div class="task-meta">Maintenance · 45 min</div>
+            <div class="task-meta">Maintenance &#183; 45 min</div>
           </div>
         </div>
-
         <div class="task-row" id="task-2">
           <div class="task-check" onclick="toggleTask(2)"></div>
           <div>
             <div class="task-text">Gas monitor calibration</div>
-            <div class="task-meta">Safety · 20 min</div>
+            <div class="task-meta">Safety &#183; 20 min</div>
+          </div>
+        </div>
+        <div class="task-row" id="task-3">
+          <div class="task-check" onclick="toggleTask(3)"></div>
+          <div>
+            <div class="task-text">Ventilation check &#8212; Tunnel 7</div>
+            <div class="task-meta">Safety &#183; 30 min</div>
+          </div>
+        </div>
+        <div class="task-row" id="task-4">
+          <div class="task-check" onclick="toggleTask(4)"></div>
+          <div>
+            <div class="task-text">Equipment sign-off (Drill rig)</div>
+            <div class="task-meta">Maintenance &#183; 20 min</div>
+          </div>
+        </div>
+        <div class="task-row" id="task-5">
+          <div class="task-check" onclick="toggleTask(5)"></div>
+          <div>
+            <div class="task-text">Submit end-of-shift report</div>
+            <div class="task-meta">Admin &#183; 15 min</div>
           </div>
         </div>
       </div>
@@ -238,286 +321,547 @@ button,input,textarea{font-family:'Barlow',sans-serif}
       <div class="progress-bar">
         <div id="task-progress" class="progress-fill" style="width:0%"></div>
       </div>
-      <div id="task-progress-label" style="font-size:12px;color:var(--text3);margin-top:6px">
-        0 of 6 complete
-      </div>
+      <div id="task-progress-label" style="font-size:12px;color:var(--text3);margin-top:6px">0 of 6 complete</div>
     </div>
   </div>
 
-  <!-- AI -->
+  <!-- AI CHAT TAB -->
   <div id="tab-content-ai" style="display:none;flex-direction:column;flex:1;min-height:400px">
     <div id="chat-log" class="chat-wrap">
-      <div class="msg-ai">
-        Hello James! I'm your AI Shift Assistant.
-      </div>
-
-      <div style="font-size:11px;color:var(--text3)">Quick questions:</div>
-
-      <div id="chip-row" class="chip-row">
-        <div class="chip" onclick='sendChip("What are today&apos;s hazards?")'>Today's hazards</div>
-        <div class="chip" onclick='sendChip("What task should I do first?")'>What first?</div>
+      <div class="msg-ai">Hello! I&#39;m your AI Shift Assistant. Ask me about hazards, tasks, safety protocols, or your shift status.</div>
+      <div class="chip-row" id="chip-row">
+        <div class="chip" onclick="sendChip(&quot;What are today&#39;s hazards?&quot;)">Today&#39;s hazards</div>
+        <div class="chip" onclick="sendChip(&quot;What task should I do first?&quot;)">What first?</div>
+        <div class="chip" onclick="sendChip(&quot;Methane gas protocol&quot;)">Gas protocol</div>
+        <div class="chip" onclick="sendChip(&quot;What is my shift progress?&quot;)">My progress</div>
       </div>
     </div>
 
     <div class="chat-input-row">
       <button class="voice-btn" id="voice-toggle" onclick="toggleVoice()">
         <div class="voice-pulse"></div>
-        🎤
+        &#127908;
       </button>
-
-      <input id="chat-input" class="chat-input" placeholder="Type..." onkeydown="if(event.key==='Enter')sendChat()">
-      <button class="send-btn" onclick="sendChat()">→</button>
+      <input id="chat-input" class="chat-input" placeholder="Type or use voice..." onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="send-btn" onclick="sendChat()">&#8593;</button>
     </div>
   </div>
 
-  <!-- REPORT -->
+  <!-- REPORT TAB -->
   <div id="tab-content-report" class="content" style="display:none">
     <div class="card">
-      <textarea id="rpt-work" rows="4" style="width:100%;padding:10px"></textarea>
-      <button class="primary-btn gold" style="margin-top:8px" onclick="generateReport()">Generate</button>
+      <div class="card-label">Shift Summary</div>
+      <div class="task-row" style="border:none;padding-bottom:0">
+        <div style="flex:1">
+          <div style="font-size:12px;color:var(--text3);margin-bottom:6px">Work done this shift</div>
+          <textarea id="rpt-work" rows="3" style="width:100%;padding:10px;border:.5px solid var(--border);border-radius:7px;font-size:13px;resize:vertical" placeholder="Describe work completed..."></textarea>
+        </div>
+      </div>
+      <div class="task-row" style="border:none;padding-bottom:0;margin-top:4px">
+        <div style="flex:1">
+          <div style="font-size:12px;color:var(--text3);margin-bottom:6px">Issues encountered</div>
+          <textarea id="rpt-issues" rows="2" style="width:100%;padding:10px;border:.5px solid var(--border);border-radius:7px;font-size:13px;resize:vertical" placeholder="Any issues or incidents..."></textarea>
+        </div>
+      </div>
+      <div class="task-row" style="border:none;padding-bottom:0;margin-top:4px">
+        <div style="flex:1">
+          <div style="font-size:12px;color:var(--text3);margin-bottom:6px">Handover notes</div>
+          <textarea id="rpt-handover" rows="2" style="width:100%;padding:10px;border:.5px solid var(--border);border-radius:7px;font-size:13px;resize:vertical" placeholder="Notes for next shift..."></textarea>
+        </div>
+      </div>
+      <button class="primary-btn gold" style="margin-top:12px" onclick="generateReport()">&#10024; Generate AI Report</button>
     </div>
 
     <div class="card" id="report-out" style="display:none">
-      <pre id="report-text" style="white-space:pre-wrap"></pre>
-      <button class="primary-btn" onclick="submitReport()">Submit</button>
+      <div class="card-label">Generated Report</div>
+      <pre id="report-text" style="white-space:pre-wrap;font-size:13px;line-height:1.6;color:var(--text)"></pre>
+      <button class="primary-btn" style="margin-top:12px" onclick="submitReport()">Submit Report</button>
     </div>
   </div>
 
-</div>
+</div><!-- end #app -->
 
 <script>
-var tasksDone = [];
-var chatHistory = [];
+var TOTAL_TASKS = 6;
+var tasksDone   = [];
+var taskLocks   = {};
+var recording   = false;
 var clockInterval = null;
-var taskLocks = {};
-var recording = false;
+var currentEmployee = null;
+var authToken   = null;
 
+// ── Fallback AI replies (used when API unreachable) ──────────
 var aiReplies = {
-  hazard: "⚠ Active hazards today:\nElevated methane in Tunnel 7.",
-  first: "Start with the pre-shift safety walkthrough.",
-  methane: "Methane Safety Protocol:\n• Reading <1%: Normal operation\n• 1–2%: Increase ventilation\n• >2%: Evacuate immediately",
-  log: "Logged successfully.",
-  default: "I can help with hazards, tasks, and shift progress."
+  hazard:  '&#9888; Active hazards today:\n&#8226; Elevated methane in Tunnel 7 (HIGH)\n&#8226; Electrical fault on Panel C4 (HIGH)\n\nAlways check your gas monitor before entering any tunnel.',
+  first:   'Start with the pre-shift safety walkthrough &#8212; it\'s highest priority and required before any zone entry.',
+  methane: 'Methane Safety Protocol:\n&#8226; Reading <1%: Normal operation\n&#8226; 1&#8211;2%: Increase ventilation, alert supervisor\n&#8226; >2%: Evacuate immediately, pull emergency stop\n\nPPE mandatory in Tunnel 7.',
+  progress: function() {
+    return 'Shift progress: ' + tasksDone.length + ' of ' + TOTAL_TASKS + ' tasks completed.\n' +
+      (tasksDone.length < TOTAL_TASKS ? 'Keep going!' : 'All tasks done &#8212; ready for handover.');
+  },
+  default: 'I can help with:\n&#8226; Today\'s hazards\n&#8226; Task priorities\n&#8226; Safety protocols (gas, electrical, PPE)\n&#8226; Shift progress\n\nWhat would you like to know?'
 };
 
-function doLogin(){
-  var id = document.getElementById('emp-id').value.trim();
+// ── RBAC Login ───────────────────────────────────────────────
+async function doLogin() {
+  var id  = document.getElementById('emp-id').value.trim();
+  var pin = document.getElementById('emp-pin').value.trim();
+  var errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
 
-  if(!id){
-    alert('Please enter Employee ID');
+  if (!id)  { showLoginError('Please enter your Employee ID.');  return; }
+  if (!pin) { showLoginError('Please enter your PIN.'); return; }
+
+  var btn = document.querySelector('.primary-btn.gold');
+  btn.textContent = 'Signing in...';
+  btn.disabled = true;
+
+  try {
+    var res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ emp_num: id, pin: pin })
+    });
+
+    var data = await res.json();
+
+    if (!res.ok) {
+      showLoginError(data.error || 'Invalid Employee ID or PIN.');
+      btn.textContent = 'Start Shift';
+      btn.disabled = false;
+      return;
+    }
+
+    sessionStorage.setItem('shiftai_token', data.token);
+    sessionStorage.setItem('shiftai_emp',   JSON.stringify(data.employee));
+    authToken       = data.token;
+    currentEmployee = data.employee;
+
+    // RBAC redirect
+    var role = data.employee.role;
+    if (role === 'Admin')      { window.location.href = 'admin.html';      return; }
+    if (role === 'Supervisor') { window.location.href = 'supervisor.html'; return; }
+
+    // Miner / Safety Officer &#8594; worker app
+    startWorkerApp(data.employee);
+
+  } catch (err) {
+    // API unreachable — fall back to config.json
+    try {
+      var cfgRes = await fetch('/config.json');
+      var cfg    = await cfgRes.json();
+      var zones  = {};
+      (cfg.zones || []).forEach(function(z){ zones[z.zone_id] = z; });
+
+      var found = (cfg.employees || []).find(function(e) {
+        return e.emp_num.toUpperCase() === id.toUpperCase() && e.pin === pin && e.status !== 'inactive';
+      });
+
+      if (!found) {
+        showLoginError('Employee ID or PIN not found.');
+        btn.textContent = 'Start Shift';
+        btn.disabled = false;
+        return;
+      }
+
+      var zone   = zones[found.zone_id] || {};
+      var demoEmp = {
+        emp_num: found.emp_num,
+        name:    found.name + ' ' + found.surname,
+        role:    found.role,
+        zone:    zone.zone_name || found.zone_id,
+        level:   zone.level    || '',
+        site:    zone.site_name || cfg.site.name
+      };
+
+      sessionStorage.setItem('shiftai_emp', JSON.stringify(demoEmp));
+      currentEmployee = demoEmp;
+
+      if (demoEmp.role === 'Admin')      { window.location.href = 'admin.html';      return; }
+      if (demoEmp.role === 'Supervisor') { window.location.href = 'supervisor.html'; return; }
+
+      startWorkerApp(demoEmp);
+
+    } catch (cfgErr) {
+      showLoginError('Unable to connect. Please check your network.');
+      btn.textContent = 'Start Shift';
+      btn.disabled = false;
+    }
+  }
+}
+
+function showLoginError(msg) {
+  var el = document.getElementById('login-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+// ── Start Worker App ─────────────────────────────────────────
+function startWorkerApp(emp) {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display          = 'flex';
+
+  var shiftName = getCurrentShiftName();
+  document.getElementById('shift-title').textContent =
+    shiftName + ' Shift';
+  document.getElementById('shift-info').textContent  =
+    (emp.name || emp.emp_num) + ' · ' + emp.emp_num + ' · ' + (emp.zone || emp.level || '');
+
+  updateClock();
+  if (clockInterval) clearInterval(clockInterval);
+  clockInterval = setInterval(updateClock, 1000);
+
+  loadDashboard();
+}
+
+// ── Fetch & populate dashboard ───────────────────────────────
+async function loadDashboard() {
+  updateKpiShiftPct();
+
+  if (!authToken) {
+    // Demo data
+    document.getElementById('ai-briefing-text').textContent =
+      'Good ' + getGreeting() + '. You have ' + TOTAL_TASKS + ' tasks today. ' +
+      'Two active hazards in your zone &#8212; elevated methane in Tunnel 7 and an electrical fault on Panel C4. ' +
+      'Complete the pre-shift safety walkthrough before entering any tunnels.';
+    document.getElementById('kpi-hazards').textContent = '2';
+    document.getElementById('kpi-notifs').textContent  = '1';
+    showDemoHazards();
+    showDemoNotification();
     return;
   }
 
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'flex';
+  try {
+    var res = await fetch('/api/dashboard', {
+      headers: {'Authorization': 'Bearer ' + authToken}
+    });
+    if (!res.ok) return;
+    var data = await res.json();
 
-  updateClock();
+    if (data.ai_briefing) {
+      document.getElementById('ai-briefing-text').textContent = data.ai_briefing;
+    }
 
-  if(clockInterval){
-    clearInterval(clockInterval);
+    if (data.dashboard) {
+      var done  = data.dashboard.completed_tasks || 0;
+      var total = data.dashboard.total_tasks     || TOTAL_TASKS;
+      TOTAL_TASKS = total;
+      document.getElementById('kpi-tasks').textContent        = done + '/' + total;
+      document.getElementById('task-progress').style.width    = (total ? Math.round(done/total*100) : 0) + '%';
+      document.getElementById('task-progress-label').textContent = done + ' of ' + total + ' complete';
+      document.getElementById('progress-label').textContent      = done + ' of ' + total + ' tasks complete';
+    }
+
+    if (data.hazards && data.hazards.length) {
+      document.getElementById('kpi-hazards').textContent = data.hazards.length;
+      renderHazards(data.hazards);
+    } else {
+      document.getElementById('kpi-hazards').textContent = '0';
+    }
+
+    if (data.notifications && data.notifications.length) {
+      document.getElementById('kpi-notifs').textContent = data.notifications.length;
+      renderNotifications(data.notifications);
+    }
+
+  } catch (err) {
+    // silently keep defaults
   }
-
-  clockInterval = setInterval(updateClock, 1000);
 }
 
-function updateClock(){
+function renderHazards(hazards) {
+  var sec = document.getElementById('hazards-section');
+  var list = document.getElementById('hazard-list');
+  sec.style.display = 'block';
+  list.innerHTML = hazards.map(function(h) {
+    var sev = (h.severity || '').toLowerCase();
+    var cls = sev === 'high' || sev === 'critical' ? 'badge-danger' : sev === 'medium' ? 'badge-warn' : 'badge-info';
+    return '<div class="hazard-item">' +
+      '<span class="badge ' + cls + '" style="flex-shrink:0;margin-top:2px">' + (h.severity||'').toUpperCase() + '</span>' +
+      '<div><div style="font-size:13px;font-weight:500">' + (h.type || '') + '</div>' +
+      '<div style="font-size:12px;color:var(--text2);margin-top:1px">' + (h.description || '') + '</div></div>' +
+      '</div>';
+  }).join('');
+}
+
+function renderNotifications(notifs) {
+  var sec  = document.getElementById('notif-section');
+  var list = document.getElementById('notif-list');
+  sec.style.display = 'block';
+  list.innerHTML = notifs.map(function(n) {
+    var col = n.type === 'hazard_alert' ? 'var(--danger)' : n.type === 'task_reminder' ? 'var(--gold)' : 'var(--info)';
+    return '<div class="notif-item">' +
+      '<div class="notif-dot" style="background:' + col + '"></div>' +
+      '<div><div style="font-size:13px;font-weight:500">' + (n.title || '') + '</div>' +
+      '<div style="font-size:11px;color:var(--text3);margin-top:2px">' + (n.message || '') + '</div></div>' +
+      '</div>';
+  }).join('');
+}
+
+function showDemoHazards() {
+  renderHazards([
+    { type:'Gas',        severity:'High',   description:'Elevated methane levels in Tunnel 7. PPE required.' },
+    { type:'Electrical', severity:'High',   description:'Fault on Panel C4, Zone 4B. Tagged out.' }
+  ]);
+}
+
+function showDemoNotification() {
+  renderNotifications([
+    { type:'hazard_alert', title:'Safety Alert', message:'Methane spike detected &#8212; check gas monitor before entering Tunnel 7.' }
+  ]);
+}
+
+// ── Clock ────────────────────────────────────────────────────
+function getCurrentShiftName() {
+  var h = new Date().getHours();
+  if (h >= 6  && h < 14) return 'Morning';
+  if (h >= 14 && h < 22) return 'Afternoon';
+  return 'Night';
+}
+
+function getGreeting() {
+  var h = new Date().getHours();
+  if (h < 12) return 'morning';
+  if (h < 17) return 'afternoon';
+  return 'evening';
+}
+
+function getShiftBounds() {
+  var h = new Date().getHours();
+  if (h >= 6  && h < 14) return {start:6,  end:14};
+  if (h >= 14 && h < 22) return {start:14, end:22};
+  return {start:22, end:30};
+}
+
+function updateClock() {
   var now = new Date();
+  var pad = function(n){ return String(n).padStart(2,'0'); };
+  document.getElementById('clock-disp').textContent =
+    pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
 
-  var h = String(now.getHours()).padStart(2,'0');
-  var m = String(now.getMinutes()).padStart(2,'0');
-  var s = String(now.getSeconds()).padStart(2,'0');
-
-  document.getElementById('clock-disp').textContent = h + ':' + m + ':' + s;
-
-  var shiftStart = 6 * 60;
-  var shiftEnd = 14 * 60;
-  var cur = now.getHours() * 60 + now.getMinutes();
-
-  var pct = Math.min(100, Math.max(0,
-    Math.round((cur - shiftStart) / (shiftEnd - shiftStart) * 100)
-  ));
+  var bounds = getShiftBounds();
+  var cur    = now.getHours() * 60 + now.getMinutes();
+  var start  = bounds.start * 60;
+  var end    = bounds.end   * 60;
+  var pct    = Math.min(100, Math.max(0, Math.round((cur - start) / (end - start) * 100)));
 
   document.getElementById('shift-progress').style.width = pct + '%';
+  updateKpiShiftPct(pct);
 }
 
-function switchTab(t){
-  ['dashboard','tasks','ai','report'].forEach(function(x){
-    document.getElementById('tab-content-' + x).style.display = 'none';
+function updateKpiShiftPct(pct) {
+  var el = document.getElementById('kpi-shift-pct');
+  if (el) {
+    if (pct === undefined) {
+      var bounds = getShiftBounds();
+      var now = new Date();
+      var cur = now.getHours() * 60 + now.getMinutes();
+      pct = Math.min(100, Math.max(0, Math.round((cur - bounds.start*60) / ((bounds.end - bounds.start)*60) * 100)));
+    }
+    el.textContent = pct + '%';
+  }
+}
+
+// ── Tab switching ────────────────────────────────────────────
+function switchTab(t) {
+  ['dashboard','tasks','ai','report'].forEach(function(x) {
+    var el = document.getElementById('tab-content-' + x);
+    el.style.display = 'none';
     document.getElementById('tab-' + x).classList.remove('active');
   });
 
   var el = document.getElementById('tab-content-' + t);
-
-  if(t === 'ai'){
-    el.style.display = 'flex';
-    el.style.flexDirection = 'column';
-  }else{
-    el.style.display = 'block';
-  }
-
+  el.style.display = (t === 'ai') ? 'flex' : 'block';
+  if (t === 'ai') el.style.flexDirection = 'column';
   document.getElementById('tab-' + t).classList.add('active');
 }
 
-function toggleTask(i){
-  if(taskLocks[i]) return;
+// ── Task toggling ────────────────────────────────────────────
+function toggleTask(i) {
+  if (taskLocks[i]) return;
   taskLocks[i] = true;
 
   var check = document.querySelector('#task-' + i + ' .task-check');
-  var text = document.querySelector('#task-' + i + ' .task-text');
+  var text  = document.querySelector('#task-' + i + ' .task-text');
 
-  if(tasksDone.includes(i)){
+  if (tasksDone.includes(i)) {
     tasksDone = tasksDone.filter(function(x){ return x !== i; });
     check.classList.remove('done');
     text.classList.remove('done');
-  }else{
+  } else {
     tasksDone.push(i);
     check.classList.add('done');
     text.classList.add('done');
   }
 
-  var pct = Math.round(tasksDone.length / 6 * 100);
+  var pct = Math.round(tasksDone.length / TOTAL_TASKS * 100);
+  document.getElementById('task-progress').style.width      = pct + '%';
+  document.getElementById('task-progress-label').textContent = tasksDone.length + ' of ' + TOTAL_TASKS + ' complete';
+  document.getElementById('progress-label').textContent      = tasksDone.length + ' of ' + TOTAL_TASKS + ' tasks complete';
+  document.getElementById('kpi-tasks').textContent           = tasksDone.length + '/' + TOTAL_TASKS;
 
-  document.getElementById('task-progress').style.width = pct + '%';
-  document.getElementById('task-progress-label').textContent = tasksDone.length + ' of 6 complete';
-  document.getElementById('progress-label').textContent = tasksDone.length + ' of 6 tasks complete';
-
-  setTimeout(function(){
-    taskLocks[i] = false;
-  }, 400);
+  setTimeout(function(){ taskLocks[i] = false; }, 400);
 }
 
-function hideQuickChips(){
-  var chipRow = document.getElementById('chip-row');
-
-  if(!chipRow || chipRow.dataset.hidden === '1'){
-    return;
+// ── Chat ─────────────────────────────────────────────────────
+function hideQuickChips() {
+  var row = document.getElementById('chip-row');
+  if (row && row.dataset.hidden !== '1') {
+    row.style.display = 'none';
+    row.dataset.hidden = '1';
   }
-
-  chipRow.style.display = 'none';
-  chipRow.dataset.hidden = '1';
 }
 
-function getAIReply(msg){
+function getAIReply(msg) {
   var m = msg.toLowerCase();
-
-  if(m.includes('conveyor') && (m.includes('done') || m.includes('complete'))){
-    if(!tasksDone.includes(1)){
-      toggleTask(1);
-    }
-
-    return 'Logged ✓ Conveyor belt inspection complete.';
+  if (m.includes('conveyor') && (m.includes('done') || m.includes('complete') || m.includes('finished'))) {
+    if (!tasksDone.includes(1)) toggleTask(1);
+    return '&#10003; Logged &#8212; Conveyor belt inspection marked complete.';
   }
-
-  if(m.includes('hazard')) return aiReplies.hazard;
-  if(m.includes('first')) return aiReplies.first;
-  if(m.includes('methane') || m.includes('gas')) return aiReplies.methane;
-
+  if (m.includes('hazard') || m.includes('danger') || m.includes('risk')) return aiReplies.hazard;
+  if (m.includes('first')  || m.includes('start')  || m.includes('priority') || m.includes('next')) return aiReplies.first;
+  if (m.includes('methane')|| m.includes('gas'))  return aiReplies.methane;
+  if (m.includes('progress')|| m.includes('status')|| m.includes('how many')) return aiReplies.progress();
   return aiReplies.default;
 }
 
-function addMsg(text, isUser){
+function addMsg(text, isUser) {
   var log = document.getElementById('chat-log');
-
   var div = document.createElement('div');
-  div.className = isUser ? 'msg-user' : 'msg-ai';
-  div.textContent = text;
-
+  div.className   = isUser ? 'msg-user' : 'msg-ai';
+  div.innerHTML   = text;
   log.appendChild(div);
-  log.scrollTop = log.scrollHeight;
-
-  chatHistory.push({
-    text: text,
-    user: isUser,
-    time: new Date()
-  });
+  log.scrollTop   = log.scrollHeight;
 }
 
-function sendChip(msg){
+function sendChip(msg) {
   hideQuickChips();
   addMsg(msg, true);
-
-  setTimeout(function(){
-    addMsg(getAIReply(msg), false);
-  }, 500);
+  setTimeout(function(){ addMsg(getAIReply(msg), false); }, 450);
 }
 
-function sendChat(){
+function sendChat() {
   var inp = document.getElementById('chat-input');
   var msg = inp.value.trim();
-
-  if(!msg) return;
+  if (!msg) return;
 
   hideQuickChips();
   addMsg(msg, true);
   inp.value = '';
 
-  fetch('api/chat.php', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({message: msg})
-  })
-  .then(function(res){
-    return res.json();
-  })
-  .then(function(data){
-    addMsg(data.reply || 'No response received.', false);
-  })
-  .catch(function(){
-    addMsg(getAIReply(msg), false);
-  });
+  if (authToken) {
+    fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', 'Authorization':'Bearer ' + authToken},
+      body: JSON.stringify({message: msg})
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){ addMsg(d.reply || getAIReply(msg), false); })
+    .catch(function(){  addMsg(getAIReply(msg), false); });
+  } else {
+    setTimeout(function(){ addMsg(getAIReply(msg), false); }, 450);
+  }
 }
 
-function toggleVoice(){
+// ── Voice input ──────────────────────────────────────────────
+function toggleVoice() {
   recording = !recording;
   var btn = document.getElementById('voice-toggle');
+  var inp = document.getElementById('chat-input');
 
-  if(recording){
+  if (recording) {
     btn.classList.add('recording');
-    document.getElementById('chat-input').placeholder = 'Listening...';
-
-    setTimeout(function(){
+    inp.placeholder = 'Listening...';
+    setTimeout(function() {
       recording = false;
       btn.classList.remove('recording');
-      document.getElementById('chat-input').value = 'Conveyor belt inspection complete';
-      document.getElementById('chat-input').placeholder = 'Type...';
+      inp.value       = 'Conveyor belt inspection complete';
+      inp.placeholder = 'Type or use voice...';
     }, 2500);
-
-  }else{
+  } else {
     btn.classList.remove('recording');
-    document.getElementById('chat-input').placeholder = 'Type...';
+    inp.placeholder = 'Type or use voice...';
   }
 }
 
-function generateReport(){
-  var txt = document.getElementById('rpt-work').value || 'Completed assigned tasks.';
-  document.getElementById('report-text').textContent = txt;
+// ── Report ───────────────────────────────────────────────────
+async function generateReport() {
+  var work     = document.getElementById('rpt-work').value     || 'Completed assigned tasks.';
+  var issues   = document.getElementById('rpt-issues').value   || 'None reported.';
+  var handover = document.getElementById('rpt-handover').value || 'All clear.';
+  var btn      = document.querySelector('#tab-content-report .primary-btn.gold');
+  btn.textContent = 'Generating...';
+  btn.disabled    = true;
+
+  var reportText;
+
+  if (authToken) {
+    try {
+      var res = await fetch('/api/reports/generate', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json', 'Authorization':'Bearer ' + authToken},
+        body: JSON.stringify({
+          work_done: work, issues: issues, handover_notes: handover,
+          tasks_completed: tasksDone.length + ' of ' + TOTAL_TASKS
+        })
+      });
+      var data = await res.json();
+      reportText = data.ai_report || buildLocalReport(work, issues, handover);
+    } catch(e) {
+      reportText = buildLocalReport(work, issues, handover);
+    }
+  } else {
+    reportText = buildLocalReport(work, issues, handover);
+  }
+
+  document.getElementById('report-text').textContent = reportText;
   document.getElementById('report-out').style.display = 'block';
+  btn.textContent = '&#10024; Generate AI Report';
+  btn.disabled    = false;
 }
 
-function submitReport(){
+function buildLocalReport(work, issues, handover) {
+  var now = new Date();
+  var emp = currentEmployee || {};
+  return 'SHIFT REPORT\n' +
+    '============\n' +
+    'Date: ' + now.toLocaleDateString() + '\n' +
+    'Time: ' + now.toLocaleTimeString() + '\n' +
+    'Worker: ' + (emp.name || emp.emp_num || '&#8212;') + ' (' + (emp.emp_num || '') + ')\n' +
+    'Zone: '   + (emp.zone || '&#8212;') + '\n' +
+    'Shift: '  + getCurrentShiftName() + '\n' +
+    'Tasks Completed: ' + tasksDone.length + ' of ' + TOTAL_TASKS + '\n\n' +
+    'WORK PERFORMED\n' + work + '\n\n' +
+    'ISSUES / INCIDENTS\n' + issues + '\n\n' +
+    'HANDOVER NOTES\n' + handover;
+}
+
+function submitReport() {
   var report = document.getElementById('report-text').textContent.trim();
+  if (!report) { alert('Generate a report first.'); return; }
 
-  if(!report){
-    alert('Generate a report first.');
-    return;
+  if (authToken) {
+    fetch('/api/reports/submit', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', 'Authorization':'Bearer ' + authToken},
+      body: JSON.stringify({ raw_input: report, ai_summary: report })
+    })
+    .then(function(r){ if (!r.ok) throw new Error(); return r.json(); })
+    .then(function(){
+      if (!tasksDone.includes(5)) toggleTask(5);
+      alert('Report submitted successfully.');
+    })
+    .catch(function(){ alert('Report submitted (demo mode).'); });
+  } else {
+    if (!tasksDone.includes(5)) toggleTask(5);
+    alert('Report submitted (demo mode).');
   }
-
-  fetch('api/report.php', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({report: report})
-  })
-  .then(function(res){
-    if(!res.ok) throw new Error();
-    return res.json();
-  })
-  .then(function(){
-    alert('Report submitted successfully.');
-  })
-  .catch(function(){
-    alert('Report API not available yet — submission is still a stub.');
-  });
 }
+
+// Handle Enter key on login
+document.getElementById('emp-pin').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doLogin();
+});
 </script>
 
 </body>
