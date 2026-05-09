@@ -13,9 +13,10 @@ services:
       dockerfile: Dockerfile
     container_name: shiftai-api
     ports:
-      - "3000:3000"
+      - "3000:80"
     environment:
       - NODE_ENV=production
+      - PORT=80
       - JWT_SECRET=${JWT_SECRET:-shiftai-dev-secret}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
