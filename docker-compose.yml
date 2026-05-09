@@ -1,0 +1,66 @@
+# ============================================================
+#  SMART SHIFT ASSISTANT - Docker Compose Configuration
+#  Compose for local development and production deployment
+# ============================================================
+
+version: '3.8'
+
+services:
+  # Node.js Backend API
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: shiftai-api
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - JWT_SECRET=${JWT_SECRET:-shiftai-dev-secret}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
+      - FIREBASE_PRIVATE_KEY=${FIREBASE_PRIVATE_KEY}
+      - FIREBASE_CLIENT_EMAIL=${FIREBASE_CLIENT_EMAIL}
+    volumes:
+      - ./config.json:/app/config.json
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - shiftai-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Optional: PHP server for PHP API endpoints
+  php:
+    image: php:8.1-apache
+    container_name: shiftai-php
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html
+      - ./api:/var/www/html/api
+    environment:
+      - APACHE_DOCUMENT_ROOT=/var/www/html
+    restart: unless-stopped
+    networks:
+      - shiftai-network
+    command: >
+      bash -c "a2enmod rewrite && 
+               echo '<Directory /var/www/html> 
+                    AllowOverride All 
+                    Require all granted 
+                    </Directory>' > /etc/apache2/conf-available/docker-dir.conf && 
+               a2enconf docker-dir && 
+               apache2-foreground"
+
+networks:
+  shiftai-network:
+    driver: bridge
+
+volumes:
+  logs:
+    driver: local
