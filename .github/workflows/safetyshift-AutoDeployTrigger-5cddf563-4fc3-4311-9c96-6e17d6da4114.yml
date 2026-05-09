@@ -4,19 +4,19 @@ name: Trigger auto deployment for safetyshift
 on:
   # Automatically trigger it when detected changes in repo
   push:
-    branches: 
+    branches:
       [ main ]
     paths:
     - '**'
     - '.github/workflows/safetyshift-AutoDeployTrigger-5cddf563-4fc3-4311-9c96-6e17d6da4114.yml'
 
-  # Allow manual trigger 
-  workflow_dispatch:      
+  # Allow manual trigger
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    permissions: 
+    permissions:
       id-token: write #This is required for requesting the OIDC JWT Token
       contents: read #Required when GH token is used to authenticate with private repo
 
@@ -31,19 +31,29 @@ jobs:
           tenant-id: ${{ secrets.SAFETYSHIFT_AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.SAFETYSHIFT_AZURE_SUBSCRIPTION_ID }}
 
-      - name: Build and push container image to registry
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.SAFETYSHIFT_REGISTRY_USERNAME }}
+          password: ${{ secrets.SAFETYSHIFT_REGISTRY_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.SAFETYSHIFT_REGISTRY_USERNAME }}/safetyshift:${{ github.sha }}
+            ${{ secrets.SAFETYSHIFT_REGISTRY_USERNAME }}/safetyshift:latest
+
+      - name: Deploy to Container App
         uses: azure/container-apps-deploy-action@v2
         with:
-          appSourcePath: ${{ github.workspace }}
-          _dockerfilePathKey_: _dockerfilePath_
-          _targetLabelKey_: _targetLabel_
-          registryUrl: 
+          imageToDeploy: docker.io/${{ secrets.SAFETYSHIFT_REGISTRY_USERNAME }}/safetyshift:${{ github.sha }}
+          registryUrl: docker.io
           registryUsername: ${{ secrets.SAFETYSHIFT_REGISTRY_USERNAME }}
           registryPassword: ${{ secrets.SAFETYSHIFT_REGISTRY_PASSWORD }}
           containerAppName: safetyshift
           resourceGroup: Safetyshift
-          imageToBuild: default/[parameters('containerAppName')]:${{ github.sha }}
-          _buildArgumentsKey_: |
-            _buildArgumentsValues_
-
-
+          targetPort: 80
+          ingress: external
