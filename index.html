@@ -399,7 +399,7 @@ var aiReplies = {
     return 'Shift progress: ' + tasksDone.length + ' of ' + TOTAL_TASKS + ' tasks completed.\n' +
       (tasksDone.length < TOTAL_TASKS ? 'Keep going!' : 'All tasks done &#8212; ready for handover.');
   },
-  default: 'I can help with:\n&#8226; Today\'s hazards\n&#8226; Task priorities\n&#8226; Safety protocols (gas, electrical, PPE)\n&#8226; Shift progress\n\nWhat would you like to know?'
+  'default': 'I can help with:\n&#8226; Today\'s hazards\n&#8226; Task priorities\n&#8226; Safety protocols (gas, electrical, PPE)\n&#8226; Shift progress\n\nWhat would you like to know?'
 };
 
 // ── RBAC Login ───────────────────────────────────────────────
@@ -446,9 +446,11 @@ async function doLogin() {
     startWorkerApp(data.employee);
 
   } catch (err) {
+    console.warn('[ShiftAI] API unreachable, trying config.json fallback. Reason:', err.message || err);
     // API unreachable — fall back to config.json
     try {
-      var cfgRes = await fetch('/config.json');
+      var cfgRes = await fetch('config.json');
+      if (!cfgRes.ok) throw new Error('config.json returned HTTP ' + cfgRes.status);
       var cfg    = await cfgRes.json();
       var zones  = {};
       (cfg.zones || []).forEach(function(z){ zones[z.zone_id] = z; });
@@ -483,6 +485,7 @@ async function doLogin() {
       startWorkerApp(demoEmp);
 
     } catch (cfgErr) {
+      console.error('[ShiftAI] Config fallback failed:', cfgErr.message || cfgErr);
       showLoginError('Unable to connect. Please check your network.');
       btn.textContent = 'Start Shift';
       btn.disabled = false;

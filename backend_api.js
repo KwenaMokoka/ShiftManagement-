@@ -394,4 +394,37 @@ app.get('/api/audit', auth, (req, res) => {
   res.json(cfg.audit_log);
 });
 
-app.listen(3000, () => console.log('ShiftAI API running on port 3000 — data source: config.json'));
+// ============================================================
+//  STATIC FILE SERVING
+//  Serve HTML files for front-end access
+// ============================================================
+app.use(express.static(__dirname, {
+  extensions: ['html', 'js', 'css'],
+  setHeaders: (res, path) => {
+    res.set('Cache-Control', 'public, max-age=3600');
+  }
+}));
+
+// ============================================================
+//  HEALTH CHECK ENDPOINT
+//  GET /health — For Docker health checks
+// ============================================================
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
+// ============================================================
+//  START SERVER
+// ============================================================
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`\n🚀 ShiftAI API running on port ${PORT}`);
+  console.log(`📊 Dashboard: http://localhost:${PORT}`);
+  console.log(`🔌 API Endpoints: http://localhost:${PORT}/api/*`);
+  console.log(`💾 Data source: config.json\n`);
+});
